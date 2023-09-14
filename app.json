@@ -1,5 +1,6 @@
 {
   "expo": {
+    "scheme": "ee-lener",
     "name": "app_ee_lener",
     "slug": "app_ee_lener",
     "version": "1.0.0",
@@ -26,6 +27,9 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "entryPoint": "./src/App.tsx"
+    "entryPoint": "./src/App.tsx",
+    "plugins": [
+      "expo-router"
+    ]
   }
 }
