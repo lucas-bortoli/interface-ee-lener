@@ -2,14 +2,17 @@ import { ScrollView, StyleSheet, View } from "react-native";
 import { Appbar, Button, FAB, Text } from "react-native-paper";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { StatusDisplay } from "../../components/StatusDisplay";
-import { ImpactFeedbackStyle, impactAsync } from "expo-haptics";
 import { useBoolean } from "../../hooks/useBoolean";
 import { run } from "../../utils/run";
-import { hapticFeedbackControl, hapticFeedbackProcessEnd, hapticFeedbackProcessError, hapticFeedbackProcessStart } from "../../haptics/HapticFeedback";
+import {
+  hapticFeedbackControl,
+  hapticFeedbackProcessEnd,
+  hapticFeedbackProcessStart
+} from "../../haptics/HapticFeedback";
 import { useState } from "react";
 import { timeout } from "../../utils/timeout";
 
-export function MalhaAbertaView() {
+export default function MalhaAbertaView() {
   const isOperating = useBoolean();
 
   const [currentPwm, setCurrentPwm] = useState(0);
@@ -63,60 +66,51 @@ export function MalhaAbertaView() {
 
   return (
     <>
-      <Appbar.Header elevated>
-        <Appbar.Content title="Interface EE LENeR" />
-      </Appbar.Header>
-      <ScrollView>
-        <Text variant="headlineLarge" style={styles.heading}>
-          Malha aberta
-        </Text>
-        <View style={styles.statusDisplays}>
-          <StatusDisplay textLeft="MESE" textMain={currentMese.toString()} />
-          <StatusDisplay textLeft="PWM" textMain={currentPwm.toString()} textRight="µS" />
-        </View>
-        <View style={styles.valueButtonsContainer}>
-          <Text style={styles.valueButtonsLabel}>PWM</Text>
-          <FAB
-            mode="elevated"
-            icon={() => <MaterialCommunityIcons name="minus" size={24} />}
-            onPress={() => changeMese("-")}
-            label="5"
-            disabled={isOperating.value === false}
-          ></FAB>
-          <FAB
-            mode="elevated"
-            icon={() => <MaterialCommunityIcons name="plus" size={24} />}
-            onPress={() => changeMese("+")}
-            label="5"
-            disabled={isOperating.value === false}
-          ></FAB>
-        </View>
-        {run(() => {
-          if (isOperating.value === true || isWindingDown.value === true) {
-            return (
-              <Button
-                style={styles.pairButton}
-                mode="elevated"
-                onPress={handleRegisterPwmValue}
-                disabled={isWindingDown.value === true}
-                icon={() => <MaterialCommunityIcons name="content-save" size={24} />}
-              >
-                Registrar valor PWM
-              </Button>
-            );
-          }
-
+      <Text variant="headlineLarge" style={styles.heading}>
+        Malha aberta
+      </Text>
+      <View style={styles.statusDisplays}>
+        <StatusDisplay textLeft="MESE" textMain={currentMese.toString()} />
+        <StatusDisplay textLeft="PWM" textMain={currentPwm.toString()} textRight="µS" />
+      </View>
+      <View style={styles.valueButtonsContainer}>
+        <Text style={styles.valueButtonsLabel}>PWM</Text>
+        <FAB
+          mode="elevated"
+          icon={() => <MaterialCommunityIcons name="minus" size={24} />}
+          onPress={() => changeMese("-")}
+          label="5"
+          disabled={isOperating.value === false}
+        ></FAB>
+        <FAB
+          mode="elevated"
+          icon={() => <MaterialCommunityIcons name="plus" size={24} />}
+          onPress={() => changeMese("+")}
+          label="5"
+          disabled={isOperating.value === false}
+        ></FAB>
+      </View>
+      {run(() => {
+        if (isOperating.value === true || isWindingDown.value === true) {
           return (
             <Button
               style={styles.pairButton}
               mode="elevated"
-              onPress={handleStartOperation}
+              onPress={handleRegisterPwmValue}
+              disabled={isWindingDown.value === true}
+              icon={() => <MaterialCommunityIcons name="content-save" size={24} />}
             >
-              Iniciar
+              Registrar valor PWM
             </Button>
           );
-        })}
-      </ScrollView>
+        }
+
+        return (
+          <Button style={styles.pairButton} mode="elevated" onPress={handleStartOperation}>
+            Iniciar
+          </Button>
+        );
+      })}
     </>
   );
 }

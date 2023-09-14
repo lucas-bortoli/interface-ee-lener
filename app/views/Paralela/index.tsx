@@ -4,12 +4,11 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useCountdown } from "../../hooks/useCountdown";
 import { useState } from "react";
 import { timeoutSync } from "../../utils/timeout";
-import { run } from "../../utils/run";
 import { StatusDisplay } from "../../components/StatusDisplay";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { hapticFeedbackProcessEnd } from "../../haptics/HapticFeedback";
 
-export function ParalelaView() {
+export default function ParalelaView() {
   const [collectedData, setCollectedData] = useState<number | null>(null);
 
   const countdown = useCountdown(async () => {
@@ -27,24 +26,26 @@ export function ParalelaView() {
   };
 
   return (
-    <SafeAreaView>
-      <ScrollView>
-        <Text variant="headlineLarge" style={styles.heading}>
-          Paralela
-        </Text>
-        <StatusDisplay style={styles.collectedData} textMain={collectedData?.toString() ?? "0"} textRight="kg" />
-        <Button
-          style={styles.actionButton}
-          contentStyle={styles.actionButtonInner}
-          mode="elevated"
-          icon={() => countdown.isCounting && <MaterialCommunityIcons name="timer-sand" size={24} /> }
-          onPress={startCountdown}
-          disabled={countdown.isCounting}
-        >
-          {countdown.isCounting ? `${countdown.count}s` : `Iniciar`}
-        </Button>
-      </ScrollView>
-    </SafeAreaView>
+    <>
+      <Text variant="headlineLarge" style={styles.heading}>
+        Paralela
+      </Text>
+      <StatusDisplay
+        style={styles.collectedData}
+        textMain={collectedData?.toString() ?? "0"}
+        textRight="kg"
+      />
+      <Button
+        style={styles.actionButton}
+        contentStyle={styles.actionButtonInner}
+        mode="elevated"
+        icon={() => countdown.isCounting && <MaterialCommunityIcons name="timer-sand" size={24} />}
+        onPress={startCountdown}
+        disabled={countdown.isCounting}
+      >
+        {countdown.isCounting ? `${countdown.count}s` : `Iniciar`}
+      </Button>
+    </>
   );
 }
 
@@ -62,6 +63,6 @@ const styles = StyleSheet.create({
     paddingVertical: 12
   },
   collectedData: {
-    margin: 32,
+    margin: 32
   }
 });
