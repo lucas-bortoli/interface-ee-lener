@@ -5,7 +5,9 @@ import { useCountdown } from "../../hooks/useCountdown";
 import { useState } from "react";
 import { timeoutSync } from "../../utils/timeout";
 import { run } from "../../utils/run";
-import { ImpactFeedbackStyle, impactAsync } from "expo-haptics";
+import { StatusDisplay } from "../../components/StatusDisplay";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { hapticFeedbackProcessEnd } from "../../haptics/HapticFeedback";
 
 export function ParalelaView() {
   const [collectedData, setCollectedData] = useState<number | null>(null);
@@ -15,8 +17,8 @@ export function ParalelaView() {
     timeoutSync(1000);
 
     // Dado coletado!
-    impactAsync(ImpactFeedbackStyle.Medium);
-    setCollectedData(Math.floor(Math.random() * 1024));
+    hapticFeedbackProcessEnd();
+    setCollectedData(Math.floor(Math.random() * 80) + 40);
   }, 1000);
 
   const startCountdown = () => {
@@ -30,26 +32,17 @@ export function ParalelaView() {
         <Text variant="headlineLarge" style={styles.heading}>
           Paralela
         </Text>
+        <StatusDisplay style={styles.collectedData} textMain={collectedData?.toString() ?? "0"} textRight="kg" />
         <Button
           style={styles.actionButton}
           contentStyle={styles.actionButtonInner}
           mode="elevated"
+          icon={() => countdown.isCounting && <MaterialCommunityIcons name="timer-sand" size={24} /> }
           onPress={startCountdown}
           disabled={countdown.isCounting}
         >
           {countdown.isCounting ? `${countdown.count}s` : `Iniciar`}
         </Button>
-        {run(() => {
-          if (collectedData === null) {
-            return null;
-          }
-
-          return (
-            <Text variant="displayLarge" style={styles.collectedData}>
-              {collectedData}
-            </Text>
-          );
-        })}
       </ScrollView>
     </SafeAreaView>
   );
@@ -69,6 +62,6 @@ const styles = StyleSheet.create({
     paddingVertical: 12
   },
   collectedData: {
-    textAlign: "center"
+    margin: 32,
   }
 });
