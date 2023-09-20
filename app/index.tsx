@@ -1,5 +1,5 @@
 import { ScrollView, StyleSheet, View } from "react-native";
-import { Appbar, Button, Text, ActivityIndicator } from "react-native-paper";
+import { Appbar, Button, Text, ActivityIndicator, withTheme } from "react-native-paper";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { hapticFeedbackControl } from "./haptics/HapticFeedback";
