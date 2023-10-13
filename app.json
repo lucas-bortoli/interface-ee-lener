@@ -12,9 +12,7 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true
     },
@@ -32,16 +30,18 @@
     "plugins": [
       "expo-router",
       "@config-plugins/react-native-ble-plx",
-      "expo-build-properties",
-      {
-        "android": {
-          "compileSdkVersion": 23,
-          "targetSdkVersion": 23
-        },
-        "ios": {
-          "deploymentTarget": "13.0"
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "minSdkVersion": 23,
+            "buildToolsVersion": "23.0.3"
+          },
+          "ios": {
+            "deploymentTarget": "13.0"
+          }
         }
-      }
+      ]
     ],
     "extra": {
       "router": {

@@ -2,9 +2,10 @@ import { PropsWithChildren, createContext, useMemo, useState } from "react";
 import requestBluetoothPermission from "./requestPermission";
 import { BleManager, Device } from "react-native-ble-plx";
 import connectToDevice from "./connectToDevice";
+import { ToastAndroid } from "react-native";
 
 interface BTDisconnected {
-  bleManager: BleManager;
+  bleManager: BleManager | null;
   isConnected: false;
   connect(): Promise<boolean>;
 }
@@ -25,7 +26,20 @@ type BluetoothContext = BTConnected | BTDisconnected;
 const btContext = createContext<BluetoothContext | null>(null);
 
 export const BluetoothProvider = (props: PropsWithChildren) => {
-  const bleManager = useMemo(() => new BleManager(), []);
+  const bleManager = useMemo(() => {
+    try {
+      return new BleManager();
+    } catch (error) {
+      console.error("Failed to create Bluetooth Manager.", error);
+      ToastAndroid.showWithGravity(
+        "Houve um erro ao inicializar a lógica de Bluetooth.",
+        3000,
+        ToastAndroid.BOTTOM
+      );
+
+      return null;
+    }
+  }, []);
 
   const [btDevice, setBtDevice] = useState<Device | null>(null);
   const [btConnected, setBtConnected] = useState(false);
@@ -37,11 +51,11 @@ export const BluetoothProvider = (props: PropsWithChildren) => {
     setBtPwm(0);
     setBtWeightL(0);
     setBtWeightR(0);
-  }
+  };
 
   let btObject: BluetoothContext;
 
-  if (btConnected) {
+  if (bleManager !== null && btConnected) {
     btObject = {
       bleManager: bleManager,
       isConnected: true,
@@ -63,6 +77,16 @@ export const BluetoothProvider = (props: PropsWithChildren) => {
       connect: async () => {
         resetDataValues();
         setBtConnected(false);
+
+        if (bleManager === null) {
+          ToastAndroid.showWithGravity(
+            "A conexão Bluetooth não está disponível.",
+            3000,
+            ToastAndroid.BOTTOM
+          );
+
+          return false;
+        }
 
         const gotPermission = await requestBluetoothPermission();
 
