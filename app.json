@@ -31,7 +31,17 @@
     "entryPoint": "./src/App.tsx",
     "plugins": [
       "expo-router",
-      "@config-plugins/react-native-ble-plx"
+      "@config-plugins/react-native-ble-plx",
+      "expo-build-properties",
+      {
+        "android": {
+          "compileSdkVersion": 23,
+          "targetSdkVersion": 23
+        },
+        "ios": {
+          "deploymentTarget": "13.0"
+        }
+      }
     ],
     "extra": {
       "router": {
