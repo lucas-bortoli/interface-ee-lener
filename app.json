@@ -30,7 +30,8 @@
     },
     "entryPoint": "./src/App.tsx",
     "plugins": [
-      "expo-router"
+      "expo-router",
+      "@config-plugins/react-native-ble-plx"
     ],
     "extra": {
       "router": {
