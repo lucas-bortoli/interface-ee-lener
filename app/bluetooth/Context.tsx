@@ -1,8 +1,10 @@
-import { PropsWithChildren, createContext, useContext, useMemo, useState } from "react";
+import { PropsWithChildren, createContext, useContext, useEffect, useMemo, useState } from "react";
 import requestBluetoothPermission from "./requestPermission";
 import { BleManager, Device, State } from "react-native-ble-plx";
 import connectToDevice from "./connectToDevice";
 import { ToastAndroid } from "react-native";
+import BluetoothUuids from "./uuids";
+import { useCharacteristic, useCharacteristicInt } from "./useCharacteristic";
 
 interface BTDisconnected {
   bleManager: BleManager | null;
@@ -50,15 +52,27 @@ export const BluetoothProvider = (props: PropsWithChildren) => {
 
   const [btDevice, setBtDevice] = useState<Device | null>(null);
   const [btStatus, setBtStatus] = useState<BluetoothContext["status"]>("DISCONNECTED");
+
+  /*
   const [btPwm, setBtPwm] = useState(0);
   const [btWeightL, setBtWeightL] = useState(0);
   const [btWeightR, setBtWeightR] = useState(0);
+  */
 
-  const resetDataValues = () => {
-    setBtPwm(0);
-    setBtWeightL(0);
-    setBtWeightR(0);
-  };
+  const [btPwm, setBtPwm] = useCharacteristicInt(
+    btDevice,
+    BluetoothUuids.characteristicPwm
+  );
+
+  const [btWeightL, setBtWeightL] = useCharacteristicInt(
+    btDevice,
+    BluetoothUuids.characteristicWeightL
+  );
+
+  const [btWeightR, setBtWeightR] = useCharacteristicInt(
+    btDevice,
+    BluetoothUuids.characteristicWeightR
+  );
 
   let btObject: BluetoothContext;
 
@@ -77,7 +91,6 @@ export const BluetoothProvider = (props: PropsWithChildren) => {
           return false;
         }
 
-        resetDataValues();
         setBtStatus("CONNECTING");
 
         const gotPermission = await requestBluetoothPermission();
@@ -94,13 +107,11 @@ export const BluetoothProvider = (props: PropsWithChildren) => {
           return false;
         }
 
-        resetDataValues();
         setBtDevice(device);
         setBtStatus("CONNECTED");
 
         device.onDisconnected((error, device) => {
           console.info(`Bluetooth device ${device.id} disconnected, error=`, error);
-          resetDataValues();
           setBtStatus("DISCONNECTED");
         });
 
@@ -120,7 +131,6 @@ export const BluetoothProvider = (props: PropsWithChildren) => {
       weightL: btWeightL,
       weightR: btWeightR,
       disconnect: async () => {
-        resetDataValues();
         setBtStatus("DISCONNECTED");
         await btDevice?.cancelConnection();
       },

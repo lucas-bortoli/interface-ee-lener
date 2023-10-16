@@ -70,9 +70,11 @@ export default async function connectToDevice(bleManager: BleManager): Promise<D
   }
 
   try {
-    return await foundDevice.connect({
+    const device = await foundDevice.connect({
       refreshGatt: "OnConnected"
     });
+
+    return await device.discoverAllServicesAndCharacteristics();
   } catch (error) {
     ToastAndroid.showWithGravity(
       "Houve um erro ao conectar ao dispositivo.",
