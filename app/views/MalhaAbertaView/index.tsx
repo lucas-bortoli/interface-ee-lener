@@ -117,7 +117,7 @@ export default function MalhaAbertaView() {
 
 const styles = StyleSheet.create({
   heading: {
-    textAlign: "center",
+    textAlign: "left",
     margin: 32
   },
   text: {

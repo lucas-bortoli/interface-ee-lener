@@ -1,51 +1,58 @@
-import { BleManager, Device, ScanCallbackType, ScanMode } from "react-native-ble-plx";
-import BluetoothUuids from "./uuids";
+import { BleManager, Device, ScanMode } from "react-native-ble-plx";
 import { timeout } from "../utils/timeout";
 import { ToastAndroid } from "react-native";
 
+const deviceInfo = (device: Device) => {
+  return `${device!.name ?? "Unnamed"} - ${device.id}`;
+};
+
+const deviceMatches = (device: Device) => {
+  return (device.name ?? "").includes("LILAT");
+};
+
 async function findDevice(bleManager: BleManager): Promise<Device | null> {
   const scanStartTime = Date.now();
-
   let foundDevice: Device | null = null;
 
-  bleManager.startDeviceScan(
-    [BluetoothUuids.service],
-    { scanMode: ScanMode.LowLatency, callbackType: ScanCallbackType.FirstMatch },
-    (error, device) => {
-      if (error) {
-        // Handle error (scanning will be stopped automatically)
-        return;
-      }
-
-      console.log(`Finally found a device with our service UUID! ${device!.id}`);
-
-      ToastAndroid.showWithGravity(
-        "Um dispositivo compatível foi encontrado!",
-        1000,
-        ToastAndroid.BOTTOM
-      );
-
-      // If it matches our custom service UUID then that's that
-      foundDevice = device;
+  bleManager.startDeviceScan(null, { scanMode: ScanMode.LowLatency }, (error, newDevice) => {
+    if (error) {
+      // Handle error (scanning will be stopped automatically)
+      console.error("Error during device scan...", error);
+      return;
     }
-  );
 
-  while (foundDevice === null && (Date.now() - scanStartTime) < 15000) {
+    if (deviceMatches(newDevice!)) {
+      console.log(`* ${deviceInfo(newDevice!)}`);
+
+      if (foundDevice === null) {
+        ToastAndroid.showWithGravity(
+          "Um dispositivo compatível foi encontrado!",
+          1000,
+          ToastAndroid.BOTTOM
+        );
+
+        // If it matches our custom service UUID then that's that
+        foundDevice = newDevice;
+      }
+    } else {
+      console.log(`- ${deviceInfo(newDevice!)}`);
+    }
+  });
+
+  while (foundDevice === null && Date.now() - scanStartTime < 15000) {
     // Go do something else while we wait for the bluetooth device to show up
     await timeout(500);
   }
 
+  bleManager.stopDeviceScan();
+
   if (foundDevice === null) {
     console.warn(`Gave up waiting for device.`);
 
-    ToastAndroid.showWithGravity(
-      "O dispositivo não foi encontrado.",
-      3000,
-      ToastAndroid.BOTTOM
-    );
+    ToastAndroid.showWithGravity("O dispositivo não foi encontrado.", 3000, ToastAndroid.BOTTOM);
+  } else {
+    console.info(`Scan end, device: ${deviceInfo(foundDevice)}`);
   }
-
-  bleManager.stopDeviceScan();
 
   return foundDevice;
 }
@@ -63,7 +70,9 @@ export default async function connectToDevice(bleManager: BleManager): Promise<D
   }
 
   try {
-    return await foundDevice.connect();
+    return await foundDevice.connect({
+      refreshGatt: "OnConnected"
+    });
   } catch (error) {
     ToastAndroid.showWithGravity(
       "Houve um erro ao conectar ao dispositivo.",

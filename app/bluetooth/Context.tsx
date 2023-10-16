@@ -1,18 +1,23 @@
-import { PropsWithChildren, createContext, useMemo, useState } from "react";
+import { PropsWithChildren, createContext, useContext, useMemo, useState } from "react";
 import requestBluetoothPermission from "./requestPermission";
-import { BleManager, Device } from "react-native-ble-plx";
+import { BleManager, Device, State } from "react-native-ble-plx";
 import connectToDevice from "./connectToDevice";
 import { ToastAndroid } from "react-native";
 
 interface BTDisconnected {
   bleManager: BleManager | null;
-  isConnected: false;
+  status: "DISCONNECTED";
   connect(): Promise<boolean>;
+}
+
+interface BTConnecting {
+  bleManager: BleManager;
+  status: "CONNECTING";
 }
 
 interface BTConnected {
   bleManager: BleManager;
-  isConnected: true;
+  status: "CONNECTING" | "CONNECTED";
   currentPwm: number;
   weightL: number;
   weightR: number;
@@ -21,9 +26,11 @@ interface BTConnected {
   saveMese(): Promise<void>;
 }
 
-type BluetoothContext = BTConnected | BTDisconnected;
+export type BluetoothContext = BTConnected | BTConnecting | BTDisconnected;
 
 const btContext = createContext<BluetoothContext | null>(null);
+
+export const useBluetoothConnection = () => useContext(btContext)!;
 
 export const BluetoothProvider = (props: PropsWithChildren) => {
   const bleManager = useMemo(() => {
@@ -42,7 +49,7 @@ export const BluetoothProvider = (props: PropsWithChildren) => {
   }, []);
 
   const [btDevice, setBtDevice] = useState<Device | null>(null);
-  const [btConnected, setBtConnected] = useState(false);
+  const [btStatus, setBtStatus] = useState<BluetoothContext["status"]>("DISCONNECTED");
   const [btPwm, setBtPwm] = useState(0);
   const [btWeightL, setBtWeightL] = useState(0);
   const [btWeightR, setBtWeightR] = useState(0);
@@ -55,30 +62,12 @@ export const BluetoothProvider = (props: PropsWithChildren) => {
 
   let btObject: BluetoothContext;
 
-  if (bleManager !== null && btConnected) {
+  if (btStatus === "DISCONNECTED") {
     btObject = {
       bleManager: bleManager,
-      isConnected: true,
-      currentPwm: btPwm,
-      weightL: btWeightL,
-      weightR: btWeightR,
-      disconnect: async () => {
-        resetDataValues();
-        setBtConnected(false);
-        await btDevice?.cancelConnection();
-      },
-      saveMese: async () => {},
-      setCurrentPwm: async () => {}
-    };
-  } else {
-    btObject = {
-      bleManager: bleManager,
-      isConnected: false,
+      status: "DISCONNECTED",
       connect: async () => {
-        resetDataValues();
-        setBtConnected(false);
-
-        if (bleManager === null) {
+        if (bleManager === null || (await bleManager.state()) !== State.PoweredOn) {
           ToastAndroid.showWithGravity(
             "A conexão Bluetooth não está disponível.",
             3000,
@@ -88,30 +77,55 @@ export const BluetoothProvider = (props: PropsWithChildren) => {
           return false;
         }
 
+        resetDataValues();
+        setBtStatus("CONNECTING");
+
         const gotPermission = await requestBluetoothPermission();
 
         if (!gotPermission) {
+          setBtStatus("DISCONNECTED");
           return false;
         }
 
         const device = await connectToDevice(bleManager);
 
         if (!device) {
+          setBtStatus("DISCONNECTED");
           return false;
         }
 
         resetDataValues();
         setBtDevice(device);
-        setBtConnected(true);
+        setBtStatus("CONNECTED");
 
         device.onDisconnected((error, device) => {
           console.info(`Bluetooth device ${device.id} disconnected, error=`, error);
           resetDataValues();
-          setBtConnected(false);
+          setBtStatus("DISCONNECTED");
         });
 
         return true;
       }
+    };
+  } else if (btStatus === "CONNECTING") {
+    btObject = {
+      status: "CONNECTING",
+      bleManager: bleManager!
+    };
+  } else {
+    btObject = {
+      bleManager: bleManager!,
+      status: "CONNECTED",
+      currentPwm: btPwm,
+      weightL: btWeightL,
+      weightR: btWeightR,
+      disconnect: async () => {
+        resetDataValues();
+        setBtStatus("DISCONNECTED");
+        await btDevice?.cancelConnection();
+      },
+      saveMese: async () => {},
+      setCurrentPwm: async () => {}
     };
   }
 

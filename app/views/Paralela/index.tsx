@@ -52,17 +52,18 @@ export default function ParalelaView() {
 const styles = StyleSheet.create({
   heading: {
     margin: 32,
-    marginTop: "50%",
-    textAlign: "center"
+    textAlign: "left"
   },
   actionButton: {
     marginTop: 48,
-    margin: 32
+    margin: 32,
+    backgroundColor: "#f0f0f0"
   },
   actionButtonInner: {
     paddingVertical: 12
   },
   collectedData: {
-    margin: 32
+    marginVertical: 16,
+    marginHorizontal: 32
   }
 });

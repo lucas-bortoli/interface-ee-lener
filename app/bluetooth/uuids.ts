@@ -1,11 +1,11 @@
-const makeFullUuid = (partial: string) => `${partial}-0000-1000-8000-00805f9b34fb`;
+import { fullUUID } from "react-native-ble-plx";
 
 const BluetoothUuids = {
-  service: makeFullUuid("fff0"),
-  characteristicPwm: makeFullUuid("fff1"),
-  characteristicMese: makeFullUuid("fff2"),
-  characteristicWeightL: makeFullUuid("fffa"),
-  characteristicWeightR: makeFullUuid("fffb")
+  service: fullUUID("abba"),
+  characteristicPwm: fullUUID("fff1"),
+  characteristicMese: fullUUID("fff2"),
+  characteristicWeightL: fullUUID("fffa"),
+  characteristicWeightR: fullUUID("fffb")
 };
 
 export default BluetoothUuids;

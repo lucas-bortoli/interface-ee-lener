@@ -29,7 +29,13 @@
     "entryPoint": "./src/App.tsx",
     "plugins": [
       "expo-router",
-      "@config-plugins/react-native-ble-plx",
+      [
+        "@config-plugins/react-native-ble-plx",
+        {
+          "isBackgroundEnabled": true,
+          "neverForLocation": false
+        }
+      ],
       [
         "expo-build-properties",
         {

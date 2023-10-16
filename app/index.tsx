@@ -60,7 +60,7 @@ export default function Menu() {
 
 const styles = StyleSheet.create({
   heading: {
-    textAlign: "center",
+    textAlign: "left",
     margin: 32
   },
   buttonList: {
@@ -76,6 +76,6 @@ const styles = StyleSheet.create({
     paddingVertical: 12
   },
   menuButtonIcon: {
-    
+
   }
 });
