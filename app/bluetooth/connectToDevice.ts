@@ -71,7 +71,8 @@ export default async function connectToDevice(bleManager: BleManager): Promise<D
 
   try {
     const device = await foundDevice.connect({
-      refreshGatt: "OnConnected"
+      refreshGatt: "OnConnected",
+      timeout: 5000
     });
 
     return await device.discoverAllServicesAndCharacteristics();

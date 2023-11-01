@@ -8,11 +8,12 @@ import { StatusDisplay } from "../../components/StatusDisplay";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { hapticFeedbackProcessEnd } from "../../haptics/HapticFeedback";
 import { useBluetoothConnection } from "../../bluetooth/Context";
-import { run } from "../../utils/run";
+import { useCharacteristicInt } from "../../bluetooth/useCharacteristic";
+import BluetoothUuids from "../../bluetooth/uuids";
 
 export default function ParalelaView() {
-  const [collectedData, setCollectedData] = useState<number | null>(null);
   const ble = useBluetoothConnection();
+  const [weightL] = useCharacteristicInt(ble.device, BluetoothUuids.characteristicWeightL);
 
   const countdown = useCountdown(async () => {
     // Coleta de dado...
@@ -20,12 +21,10 @@ export default function ParalelaView() {
 
     // Dado coletado!
     hapticFeedbackProcessEnd();
-    setCollectedData(Math.floor(Math.random() * 80) + 40);
   }, 1000);
 
   const startCountdown = () => {
     countdown.setCount(5);
-    setCollectedData(null);
   };
 
   return (
@@ -33,23 +32,11 @@ export default function ParalelaView() {
       <Text variant="headlineLarge" style={styles.heading}>
         Paralela
       </Text>
-      {run(() => {
-        let weightValue: number;
-
-        if (ble.status !== "CONNECTED") {
-          weightValue = 0;
-        } else {
-          weightValue = ble.weightL;
-        }
-
-        return (
-          <StatusDisplay
-            style={styles.collectedData}
-            textMain={weightValue.toString() ?? "0"}
-            textRight="kg"
-          />
-        );
-      })}
+      <StatusDisplay
+        style={styles.collectedData}
+        textMain={weightL.toString() ?? "0"}
+        textRight="kg"
+      />
       <Button
         style={styles.actionButton}
         contentStyle={styles.actionButtonInner}

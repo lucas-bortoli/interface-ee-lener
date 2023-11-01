@@ -7,13 +7,17 @@ import {
   hapticFeedbackProcessStart
 } from "../../haptics/HapticFeedback";
 import { run } from "../../utils/run";
+import { useState } from "react";
 
 export default function PairingView() {
+  const [isConnecting, setConnecting] = useState(false);
   const ble = useBluetoothConnection();
   const startPair = async () => {
     if (ble.status !== "DISCONNECTED") {
       return;
     }
+
+    setConnecting(true);
 
     const success = await ble.connect();
 
@@ -22,6 +26,8 @@ export default function PairingView() {
     } else {
       hapticFeedbackProcessError();
     }
+
+    setConnecting(false);
   };
 
   const disconnect = async () => {
@@ -30,7 +36,7 @@ export default function PairingView() {
     }
 
     await ble.disconnect();
-  }
+  };
 
   return (
     <>
@@ -38,34 +44,30 @@ export default function PairingView() {
         Conexão Bluetooth
       </Text>
       <Text style={styles.text}>Conecte ao dispositivo via Bluetooth.</Text>
-      {run(() => {
-        if (ble.status === "CONNECTING") {
-          return (
-            <View style={styles.statusIndicatorContainer}>
-              <ActivityIndicator size="small" />
-              <Text style={styles.statusIndicator}>Procurando dispositivo...</Text>
-            </View>
-          );
-        }
-      })}
+      {isConnecting && (
+        <View style={styles.statusIndicatorContainer}>
+          <ActivityIndicator size="small" />
+          <Text style={styles.statusIndicator}>Procurando dispositivo...</Text>
+        </View>
+      )}
       <View style={styles.buttons}>
-      <Button
-        contentStyle={styles.pairButtonInner}
-        mode="elevated"
-        icon={() => <MaterialCommunityIcons name="bluetooth" size={24} />}
-        onPress={startPair}
-        disabled={ble.status !== "DISCONNECTED"}
-      >
-        Conectar ao hardware
-      </Button>
-      <Button
-        contentStyle={styles.pairButtonInner}
-        mode="elevated"
-        onPress={disconnect}
-        disabled={ble.status !== "CONNECTED"}
-      >
-        Desconectar
-      </Button>
+        <Button
+          contentStyle={styles.pairButtonInner}
+          mode="elevated"
+          icon={() => <MaterialCommunityIcons name="bluetooth" size={24} />}
+          onPress={startPair}
+          disabled={isConnecting || ble.status === "CONNECTED"}
+        >
+          Conectar ao hardware
+        </Button>
+        <Button
+          contentStyle={styles.pairButtonInner}
+          mode="elevated"
+          onPress={disconnect}
+          disabled={isConnecting || ble.status === "DISCONNECTED"}
+        >
+          Desconectar
+        </Button>
       </View>
     </>
   );

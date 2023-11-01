@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { BleManager, Device } from "react-native-ble-plx";
+import { BleErrorCode, BleManager, Device } from "react-native-ble-plx";
 import BluetoothUuids from "./uuids";
 import { Buffer } from "buffer";
 import { useUpdate } from "../hooks/useUpdate";
@@ -20,6 +20,11 @@ export const useCharacteristic = (
       BluetoothUuids.service,
       charUuid,
       (error, characteristic) => {
+        if (error?.errorCode === BleErrorCode.OperationCancelled) {
+          // silently stop
+          return;
+        }
+
         if (error !== null) {
           console.error(`Error while monitoring characteristic ${charUuid}:`, error);
           return;
@@ -47,10 +52,13 @@ export const useCharacteristic = (
     );
 
     return () => {
+      console.warn("Unmounting: stopping subscription");
       buffer.fill(0);
       subscription.remove();
     };
   }, [device]);
+
+  useEffect(() => {}, [update]);
 
   const writeBuffer = (newData: Buffer) => {
     if (device === null) {
@@ -70,13 +78,7 @@ export const useCharacteristicInt = (
   const [buffer, writeBuffer] = useCharacteristic(device, charUuid);
   const int = buffer.readInt32LE(0);
 
-  const writeInt = (val: number) => {
-
-  };
-
-  useEffect(() => {
-    console.log(int);
-  }, [int]);
+  const writeInt = (val: number) => {};
 
   return [int, writeInt];
 };
