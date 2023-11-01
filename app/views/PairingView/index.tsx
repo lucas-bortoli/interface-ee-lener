@@ -6,7 +6,6 @@ import {
   hapticFeedbackProcessError,
   hapticFeedbackProcessStart
 } from "../../haptics/HapticFeedback";
-import { run } from "../../utils/run";
 import { useState } from "react";
 
 export default function PairingView() {

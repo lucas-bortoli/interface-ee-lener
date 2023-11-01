@@ -74,19 +74,16 @@ export default function MalhaAbertaView() {
         <StatusDisplay textLeft="PWM" textMain={currentPwm.toString()} textRight="µS" />
       </View>
       <View style={styles.valueButtonsContainer}>
-        <Text style={styles.valueButtonsLabel}>PWM</Text>
         <FAB
           mode="elevated"
           icon={() => <MaterialCommunityIcons name="minus" size={24} />}
           onPress={() => changeMese("-")}
-          label="5"
           disabled={isOperating.value === false}
         ></FAB>
         <FAB
           mode="elevated"
           icon={() => <MaterialCommunityIcons name="plus" size={24} />}
           onPress={() => changeMese("+")}
-          label="5"
           disabled={isOperating.value === false}
         ></FAB>
       </View>
@@ -141,9 +138,5 @@ const styles = StyleSheet.create({
     gap: 16,
     margin: 32,
     position: "relative"
-  },
-  valueButtonsLabel: {
-    position: "absolute",
-    left: 0
   }
 });

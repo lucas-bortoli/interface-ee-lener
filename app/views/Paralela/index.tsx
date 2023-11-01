@@ -62,7 +62,8 @@ const styles = StyleSheet.create({
     backgroundColor: "#f0f0f0"
   },
   actionButtonInner: {
-    paddingVertical: 12
+    paddingVertical: 12,
+    backgroundColor: "#f0f0f0"
   },
   collectedData: {
     marginVertical: 16,

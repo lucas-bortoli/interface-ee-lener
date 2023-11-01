@@ -52,13 +52,11 @@ export const useCharacteristic = (
     );
 
     return () => {
-      console.warn("Unmounting: stopping subscription");
+      console.info("Unmounting: stopping subscription");
       buffer.fill(0);
       subscription.remove();
     };
   }, [device]);
-
-  useEffect(() => {}, [update]);
 
   const writeBuffer = (newData: Buffer) => {
     if (device === null) {
