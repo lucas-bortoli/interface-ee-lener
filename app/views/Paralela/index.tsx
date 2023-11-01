@@ -1,31 +1,35 @@
-import { ScrollView, StyleSheet } from "react-native";
+import { StyleSheet } from "react-native";
 import { Button, Text } from "react-native-paper";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { useCountdown } from "../../hooks/useCountdown";
-import { useState } from "react";
-import { timeoutSync } from "../../utils/timeout";
+import { useRef, useState } from "react";
 import { StatusDisplay } from "../../components/StatusDisplay";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { hapticFeedbackProcessEnd } from "../../haptics/HapticFeedback";
 import { useBluetoothConnection } from "../../bluetooth/Context";
 import { useCharacteristicInt } from "../../bluetooth/useCharacteristic";
 import BluetoothUuids from "../../bluetooth/uuids";
+import { useDataContext } from "../../DataContext";
 
 export default function ParalelaView() {
   const ble = useBluetoothConnection();
   const [weightL] = useCharacteristicInt(ble.device, BluetoothUuids.characteristicWeightL);
+  const [collectedWeight, setCollectedWeight] = useDataContext().parallelCollectedWeight;
+  const weightRef = useRef<number>();
+
+  weightRef.current = weightL;
 
   const countdown = useCountdown(async () => {
-    // Coleta de dado...
-    timeoutSync(1000);
-
     // Dado coletado!
     hapticFeedbackProcessEnd();
+
+    setCollectedWeight(weightRef.current!);
   }, 1000);
 
   const startCountdown = () => {
     countdown.setCount(5);
   };
+
+  const shownWeight = countdown.isCounting ? weightL : collectedWeight;
 
   return (
     <>
@@ -34,7 +38,7 @@ export default function ParalelaView() {
       </Text>
       <StatusDisplay
         style={styles.collectedData}
-        textMain={weightL.toString() ?? "0"}
+        textMain={shownWeight.toString()}
         textRight="kg"
       />
       <Button

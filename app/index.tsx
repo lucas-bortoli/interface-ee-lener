@@ -3,6 +3,7 @@ import { Appbar, Button, Text, ActivityIndicator, withTheme } from "react-native
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { hapticFeedbackControl } from "./haptics/HapticFeedback";
+import { useDataContext } from "./DataContext";
 
 interface MenuButtonProps {
   icon: string;
@@ -32,6 +33,8 @@ function MenuButton(props: MenuButtonProps) {
 }
 
 export default function Menu() {
+  const data = useDataContext();
+
   return (
     <>
       <Text variant="headlineLarge" style={styles.heading}>
@@ -54,6 +57,7 @@ export default function Menu() {
           target="/views/MalhaAbertaView/"
         ></MenuButton>
       </View>
+      <Text>{data.parallelCollectedWeight[0]}</Text>
     </>
   );
 }

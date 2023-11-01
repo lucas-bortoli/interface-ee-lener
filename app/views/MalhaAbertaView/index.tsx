@@ -11,13 +11,18 @@ import {
 } from "../../haptics/HapticFeedback";
 import { useState } from "react";
 import { timeout } from "../../utils/timeout";
+import { useBluetoothConnection } from "../../bluetooth/Context";
+import { useCharacteristicInt } from "../../bluetooth/useCharacteristic";
+import BluetoothUuids from "../../bluetooth/uuids";
 
 export default function MalhaAbertaView() {
   const isOperating = useBoolean();
 
-  const [currentPwm, setCurrentPwm] = useState(0);
   const [currentMese, setCurrentMese] = useState(0);
   const isWindingDown = useBoolean();
+
+  const ble = useBluetoothConnection();
+  const [btPwm, writeBtPwm] = useCharacteristicInt(ble.device, BluetoothUuids.characteristicPwm);
 
   const handleStartOperation = () => {
     if (isOperating.value === true) {
@@ -37,14 +42,14 @@ export default function MalhaAbertaView() {
     }
 
     hapticFeedbackProcessEnd();
-    setCurrentMese(currentPwm);
+    setCurrentMese(btPwm);
     isOperating.setFalse();
     isWindingDown.setTrue();
 
-    let _pwm = currentPwm;
+    let _pwm = btPwm;
     while (_pwm > 0) {
       _pwm -= 5;
-      setCurrentPwm(_pwm);
+      await writeBtPwm(_pwm);
       hapticFeedbackControl();
       await timeout(500);
     }
@@ -52,15 +57,15 @@ export default function MalhaAbertaView() {
     isWindingDown.setFalse();
   };
 
-  const changeMese = (sign: "+" | "-") => {
+  const changeMese = async (sign: "+" | "-") => {
     if (isOperating.value === false) {
       return;
     }
 
-    const newPwm = currentPwm + (sign === "+" ? 5 : -5);
+    const newPwm = btPwm + (sign === "+" ? 5 : -5);
     const clamped = Math.max(Math.min(newPwm, 100), 0);
 
-    setCurrentPwm(clamped);
+    await writeBtPwm(clamped);
     hapticFeedbackControl();
   };
 
@@ -71,7 +76,7 @@ export default function MalhaAbertaView() {
       </Text>
       <View style={styles.statusDisplays}>
         <StatusDisplay textLeft="MESE" textMain={currentMese.toString()} />
-        <StatusDisplay textLeft="PWM" textMain={currentPwm.toString()} textRight="µS" />
+        <StatusDisplay textLeft="PWM" textMain={btPwm.toString()} textRight="µS" />
       </View>
       <View style={styles.valueButtonsContainer}>
         <FAB

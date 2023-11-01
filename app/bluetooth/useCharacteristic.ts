@@ -7,7 +7,7 @@ import { useUpdate } from "../hooks/useUpdate";
 export const useCharacteristic = (
   device: Device | null,
   charUuid: string
-): [Buffer, (newVal: Buffer) => void] => {
+): [Buffer, () => Promise<boolean>] => {
   const buffer = useMemo(() => Buffer.alloc(4), []);
   const update = useUpdate();
 
@@ -15,6 +15,8 @@ export const useCharacteristic = (
     if (device === null) {
       return;
     }
+
+    console.info(`Subscribing to characteristic ${charUuid}`);
 
     const subscription = device.monitorCharacteristicForService(
       BluetoothUuids.service,
@@ -58,12 +60,26 @@ export const useCharacteristic = (
     };
   }, [device]);
 
-  const writeBuffer = (newData: Buffer) => {
+  const writeBuffer = async () => {
     if (device === null) {
-      return;
+      return false;
     }
 
-    update();
+    try {
+      console.info("Writing data to characteristic");
+      await device.writeCharacteristicWithoutResponseForService(
+        BluetoothUuids.service,
+        charUuid,
+        buffer.toString("base64")
+      );
+      console.info("Data written");
+      update();
+      return true;
+    } catch (error) {
+      console.error("Failed to write characteristic", charUuid, buffer.toString("hex"));
+      update();
+      return false;
+    }
   };
 
   return [buffer, writeBuffer];
@@ -76,7 +92,11 @@ export const useCharacteristicInt = (
   const [buffer, writeBuffer] = useCharacteristic(device, charUuid);
   const int = buffer.readInt32LE(0);
 
-  const writeInt = (val: number) => {};
+  const writeInt = (val: number) => {
+    buffer.fill(0);
+    buffer.writeInt32LE(val);
+    return writeBuffer();
+  };
 
   return [int, writeInt];
 };
