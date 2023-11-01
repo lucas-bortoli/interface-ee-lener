@@ -56,6 +56,11 @@ export default function Menu() {
           label="Malha aberta"
           target="/views/MalhaAbertaView/"
         ></MenuButton>
+        <MenuButton
+          icon="seat-legroom-extra"
+          label="Operação"
+          target="/views/OperationView/"
+        ></MenuButton>
       </View>
       <Text>Paralela: {data.parallelCollectedWeight[0]} kg</Text>
       <Text>MESE: {data.meseValue[0]} µS</Text>

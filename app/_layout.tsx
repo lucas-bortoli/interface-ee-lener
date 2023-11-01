@@ -8,6 +8,7 @@ import { BluetoothProvider } from "./bluetooth/Context";
 import { DataProvider } from "./DataContext";
 
 export default function App() {
+
   return (
     <BluetoothProvider>
       <DataProvider>

@@ -27,6 +27,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     position: "relative",
+    borderRadius: 8
   },
   labelLeft: {
     fontFamily: "monospace",
