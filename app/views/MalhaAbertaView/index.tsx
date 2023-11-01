@@ -1,5 +1,5 @@
-import { ScrollView, StyleSheet, View } from "react-native";
-import { Appbar, Button, FAB, Text } from "react-native-paper";
+import { StyleSheet, View } from "react-native";
+import {  Button, FAB, Text } from "react-native-paper";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { StatusDisplay } from "../../components/StatusDisplay";
 import { useBoolean } from "../../hooks/useBoolean";
@@ -14,11 +14,12 @@ import { timeout } from "../../utils/timeout";
 import { useBluetoothConnection } from "../../bluetooth/Context";
 import { useCharacteristicInt } from "../../bluetooth/useCharacteristic";
 import BluetoothUuids from "../../bluetooth/uuids";
+import { useDataContext } from "../../DataContext";
 
 export default function MalhaAbertaView() {
   const isOperating = useBoolean();
 
-  const [currentMese, setCurrentMese] = useState(0);
+  const [currentMese, setCurrentMese] = useDataContext().meseValue;
   const isWindingDown = useBoolean();
 
   const ble = useBluetoothConnection();

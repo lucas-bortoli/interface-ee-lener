@@ -1,7 +1,7 @@
 import { registerRootComponent } from "expo";
-import { Slot, Tabs } from "expo-router";
+import { Slot } from "expo-router";
 import { ScrollView } from "react-native";
-import { Appbar, PaperProvider, useTheme } from "react-native-paper";
+import { Appbar, PaperProvider } from "react-native-paper";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import theme from "./theme";
 import { BluetoothProvider } from "./bluetooth/Context";
