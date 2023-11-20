@@ -1,13 +1,17 @@
 import { Animated, StyleSheet, View } from "react-native";
-import { FAB, Text } from "react-native-paper";
+import { Button, FAB, Text } from "react-native-paper";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { StatusDisplay } from "../../components/StatusDisplay";
 import { useDataContext } from "../../DataContext";
 import { WeightIndicationBar } from "./WeightIndicatorBar";
 import { useNumber } from "../../hooks/useNumber";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { hapticFeedbackControl } from "../../haptics/HapticFeedback";
+import { useCharacteristicInt } from "../../bluetooth/useCharacteristic";
+import { useBluetoothConnection } from "../../bluetooth/Context";
+import BluetoothUuids from "../../bluetooth/uuids";
 
-const useRandom = ({ min, max }: { min: number, max: number }) => {
+const useRandom = ({ min, max }: { min: number; max: number }) => {
   const [value, setValue] = useNumber(0, { min, max });
 
   useEffect(() => {
@@ -22,101 +26,90 @@ const useRandom = ({ min, max }: { min: number, max: number }) => {
 };
 
 export default function OperationView() {
-  const [currentMese, setCurrentMese] = useDataContext().meseValue;
+  const data = useDataContext();
 
-  const [setpoint, setSetpoint] = useNumber(50, { min: 0, max: currentMese });
+  const [parallelWeight] = data.parallelCollectedWeight;
+  const [currentMese] = data.meseValue;
 
-  const rand1 = useRandom({ min: 0, max: currentMese });
-  const rand2 = useRandom({ min: 0, max: currentMese });
+  const [setpoint, setSetpoint] = useState(currentMese / 2);
+  const bt = useBluetoothConnection();
+
+  const [weightL] = useCharacteristicInt(bt.device!, BluetoothUuids.characteristicWeightL);
+  const [weightR] = useCharacteristicInt(bt.device!, BluetoothUuids.characteristicWeightR);
+
+  console.log(setpoint)
 
   return (
     <>
-      <Text variant="headlineLarge" style={styles.heading}>
-        Operação
-      </Text>
-      <View style={styles.weightBarsWrapper}>
+      <View style={StyleSheet.compose(styles.group, styles.weightBarsWrapper)}>
         <WeightIndicationBar
           textTop="ESQ"
-          maximumValue={currentMese}
-          value={rand1}
+          maximumValue={parallelWeight}
+          value={weightL}
           setpointValue={setpoint}
+          onSetpointChange={setSetpoint}
           fillColor="#2E7D32"
           setpointColor="#C8E6C9"
+          style={styles.weightBar}
         />
+        <WeightIndicationBar
+          textTop="DIR"
+          maximumValue={parallelWeight}
+          value={weightR}
+          setpointValue={setpoint}
+          onSetpointChange={setSetpoint}
+          fillColor="#9E9D24"
+          setpointColor="#F0F4C3"
+          style={styles.weightBar}
+        />
+      </View>
+      <View style={styles.group}>
+        <View style={styles.statusDisplays}>
+          <StatusDisplay textLeft="MESE" textMain={currentMese.toString()} />
+        </View>
         <View style={styles.weightSetpointButtonsWrapper}>
           <FAB
             animated={false}
-            mode="elevated"
+            size="small"
             icon={() => <MaterialCommunityIcons name="plus" size={24} />}
             onPress={() => setSetpoint(setpoint + Math.floor(currentMese * 0.05))}
           ></FAB>
           <FAB
             animated={false}
-            mode="elevated"
+            size="small"
             icon={() => <MaterialCommunityIcons name="minus" size={24} />}
             onPress={() => setSetpoint(setpoint - Math.floor(currentMese * 0.05))}
           ></FAB>
         </View>
-        <WeightIndicationBar
-          textTop="DIR"
-          maximumValue={currentMese}
-          value={rand2}
-          setpointValue={setpoint}
-          fillColor="#9E9D24"
-          setpointColor="#F0F4C3"
-        />
-      </View>
-      <View style={styles.statusDisplays}>
-        <StatusDisplay textLeft="MESE" textMain={currentMese.toString()} />
-        <StatusDisplay textLeft="PWM" textMain={"0"} textRight="µS" />
-      </View>
-      <View style={styles.valueButtonsContainer}>
-        <FAB
-          animated={false}
-          mode="elevated"
-          icon={() => <MaterialCommunityIcons name="minus" size={24} />}
-        ></FAB>
-        <FAB
-          animated={false}
-          mode="elevated"
-          icon={() => <MaterialCommunityIcons name="plus" size={24} />}
-        ></FAB>
       </View>
     </>
   );
 }
 
 const styles = StyleSheet.create({
-  heading: {
-    textAlign: "left",
-    margin: 32
-  },
-  text: {
-    marginHorizontal: 32,
-    marginVertical: 8
-  },
-  weightBarsWrapper: {
-    display: "flex",
+  group: {
+    borderRadius: 16,
+    borderColor: "#ccc",
+    borderWidth: 1,
+    marginVertical: 8,
+    marginHorizontal: 16,
+    padding: 16,
     flexDirection: "row",
-    justifyContent: "space-between",
     alignItems: "center",
-    marginHorizontal: 32
+    gap: 16
   },
   weightSetpointButtonsWrapper: {
     flexDirection: "column",
-    gap: 16
-  },
-  statusDisplays: {
-    marginHorizontal: 32,
-    marginVertical: 16,
     gap: 8
   },
-  valueButtonsContainer: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    gap: 16,
-    margin: 32,
-    position: "relative"
+  weightBar: {
+    flexGrow: 1
+  },
+  weightBarsWrapper: {
+    gap: 2
+  },
+  statusDisplays: {
+    gap: 8,
+    flexGrow: 1
   }
 });

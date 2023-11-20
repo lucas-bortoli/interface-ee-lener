@@ -22,7 +22,6 @@ const styles = StyleSheet.create({
   box: {
     padding: 16,
     backgroundColor: "#323232",
-    elevation: 6,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",

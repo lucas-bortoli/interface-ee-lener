@@ -12,11 +12,15 @@ import { useDataContext } from "../../DataContext";
 
 export default function ParalelaView() {
   const ble = useBluetoothConnection();
+
   const [weightL] = useCharacteristicInt(ble.device, BluetoothUuids.characteristicWeightL);
+  const [weightR] = useCharacteristicInt(ble.device, BluetoothUuids.characteristicWeightR);
+
   const [collectedWeight, setCollectedWeight] = useDataContext().parallelCollectedWeight;
   const weightRef = useRef<number>();
 
-  weightRef.current = weightL;
+  console.log(weightL, weightR, (weightL + weightR) / 2);
+  weightRef.current = (weightL + weightR) / 2;
 
   const countdown = useCountdown(async () => {
     // Dado coletado!
@@ -29,7 +33,7 @@ export default function ParalelaView() {
     countdown.setCount(5);
   };
 
-  const shownWeight = countdown.isCounting ? weightL : collectedWeight;
+  const shownWeight = countdown.isCounting ? weightRef.current : collectedWeight;
 
   return (
     <>
@@ -38,7 +42,7 @@ export default function ParalelaView() {
       </Text>
       <StatusDisplay
         style={styles.collectedData}
-        textMain={shownWeight.toString()}
+        textMain={shownWeight.toFixed(2)}
         textRight="kg"
       />
       <Button

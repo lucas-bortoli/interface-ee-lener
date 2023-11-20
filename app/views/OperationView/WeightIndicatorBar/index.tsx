@@ -1,32 +1,40 @@
-import { View, StyleSheet, ViewStyle, StyleProp, Dimensions } from "react-native";
+import { View, StyleSheet, ViewStyle, StyleProp } from "react-native";
 import { Text } from "react-native-paper";
 import { run } from "../../../utils/run";
+import { useSlideGesture } from "./useSlideGesture";
+import { useEffect } from "react";
 
 interface Props {
   style?: StyleProp<ViewStyle> | StyleProp<ViewStyle>[];
   textTop?: string;
   maximumValue: number;
   value: number;
-  setpointValue?: number;
-  setpointColor?: string;
-  fillColor?: string;
+  setpointValue: number;
+  onSetpointChange(newValue: number): void;
+  setpointColor: string;
+  fillColor: string;
 }
 
 export function WeightIndicationBar(props: Props) {
+  const { sliderProps } = useSlideGesture({
+    currentValue: props.setpointValue,
+    maximumValue: props.maximumValue,
+    onSlide: props.onSetpointChange
+  });
+
   const fillHeight = Math.round((props.value / props.maximumValue) * 100);
 
   return (
-    <View style={StyleSheet.compose(styles.box, props.style)}>
+    <View style={StyleSheet.compose(styles.box, props.style)} {...sliderProps}>
       <View
         style={StyleSheet.compose(styles.boxFill, {
           height: `${fillHeight}%`,
           backgroundColor: props.fillColor
         })}
+        pointerEvents="none"
       />
       {run(() => {
-        if (!props.setpointValue) return;
-
-        const setpointHeight = Math.round((props.setpointValue / props.maximumValue) * 100);
+        const setpointHeight = ((props.setpointValue / props.maximumValue) * 100);
 
         return (
           <View
@@ -34,22 +42,28 @@ export function WeightIndicationBar(props: Props) {
               bottom: `${setpointHeight}%`,
               backgroundColor: props.setpointColor
             })}
-          />
+            pointerEvents="none"
+          >
+            <Text
+              style={StyleSheet.compose(styles.setpointText, {
+                color: props.setpointColor
+              })}
+            >
+              {(Math.round(props.setpointValue * 100) / 100).toFixed(2)}
+            </Text>
+          </View>
         );
       })}
       <Text style={styles.labelTop}>{props.textTop}</Text>
-      <Text style={styles.labelMain}>{props.value}</Text>
+      <Text style={styles.labelMain}>{props.value} kg</Text>
     </View>
   );
 }
 
-const screenWidth = Dimensions.get('window').width;
-const screenHeight = Dimensions.get('window').height;
-
 const styles = StyleSheet.create({
   box: {
     backgroundColor: "#323232",
-    elevation: 6,
+    elevation: 2,
     position: "relative",
     height: 256,
     width: 72,
@@ -70,9 +84,15 @@ const styles = StyleSheet.create({
     position: "absolute",
     left: 0,
     bottom: 0,
-    width: "100%",
-    height: 4,
+    width: "60%",
+    height: 2,
     backgroundColor: "red"
+  },
+  setpointText: {
+    position: "absolute",
+    right: "-60%",
+    top: -9,
+    fontFamily: "monospace"
   },
   labelTop: {
     position: "absolute",
