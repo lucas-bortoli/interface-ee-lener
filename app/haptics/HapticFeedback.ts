@@ -8,9 +8,9 @@ export async function hapticFeedbackControl() {
 export async function hapticFeedbackProcessStart() {
   await impactAsync(ImpactFeedbackStyle.Heavy);
   await timeout(300);
-  await impactAsync(ImpactFeedbackStyle.Heavy);
+  await impactAsync(ImpactFeedbackStyle.Medium);
   await timeout(150);
-  await impactAsync(ImpactFeedbackStyle.Heavy);
+  await impactAsync(ImpactFeedbackStyle.Light);
 }
 
 export async function hapticFeedbackProcessEnd() {
@@ -24,9 +24,9 @@ export async function hapticFeedbackProcessEnd() {
 }
 
 export async function hapticFeedbackProcessError() {
-  for (let i = 1; i <= 8; i++) {
-    await impactAsync(ImpactFeedbackStyle.Heavy);
-    await timeout(100);
+  for (let i = 1; i <= 1; i++) {
+    await impactAsync(ImpactFeedbackStyle.Light);
+    await timeout(300);
     await impactAsync(ImpactFeedbackStyle.Heavy);
     await timeout(200);
   }

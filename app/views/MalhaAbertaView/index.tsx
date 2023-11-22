@@ -1,5 +1,5 @@
 import { StyleSheet, View } from "react-native";
-import {  Button, FAB, Text } from "react-native-paper";
+import { Button, FAB, Text } from "react-native-paper";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { StatusDisplay } from "../../components/StatusDisplay";
 import { useBoolean } from "../../hooks/useBoolean";
@@ -15,6 +15,7 @@ import { useBluetoothConnection } from "../../bluetooth/Context";
 import { useCharacteristicInt } from "../../bluetooth/useCharacteristic";
 import BluetoothUuids from "../../bluetooth/uuids";
 import { useDataContext } from "../../DataContext";
+import { useHeaderTitle } from "../../hooks/useHeaderTitle";
 
 export default function MalhaAbertaView() {
   const isOperating = useBoolean();
@@ -70,11 +71,10 @@ export default function MalhaAbertaView() {
     hapticFeedbackControl();
   };
 
+  useHeaderTitle("Malha aberta");
+
   return (
     <>
-      <Text variant="headlineLarge" style={styles.heading}>
-        Malha aberta
-      </Text>
       <View style={styles.statusDisplays}>
         <StatusDisplay textLeft="MESE" textMain={currentMese.toString()} />
         <StatusDisplay textLeft="PWM" textMain={btPwm.toString()} textRight="µS" />

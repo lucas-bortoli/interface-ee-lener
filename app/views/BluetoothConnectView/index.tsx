@@ -7,8 +7,9 @@ import {
   hapticFeedbackProcessStart
 } from "../../haptics/HapticFeedback";
 import { useState } from "react";
+import { useHeaderTitle } from "../../hooks/useHeaderTitle";
 
-export default function PairingView() {
+export default function BluetoothConnectView() {
   const [isConnecting, setConnecting] = useState(false);
   const ble = useBluetoothConnection();
   const startPair = async () => {
@@ -37,11 +38,13 @@ export default function PairingView() {
     await ble.disconnect();
   };
 
+  useHeaderTitle("Conexão Bluetooth");
+
   return (
-    <>
-      <Text variant="headlineLarge" style={styles.heading}>
-        Conexão Bluetooth
-      </Text>
+    <View>
+      <View style={styles.iconWrapper}>
+        <MaterialCommunityIcons name="bluetooth" size={64} color="#484848" />
+      </View>
       <Text style={styles.text}>Conecte ao dispositivo via Bluetooth.</Text>
       {isConnecting && (
         <View style={styles.statusIndicatorContainer}>
@@ -50,7 +53,7 @@ export default function PairingView() {
         </View>
       )}
       <View style={styles.buttons}>
-        <Button
+        {/*<Button
           contentStyle={styles.pairButtonInner}
           mode="elevated"
           icon={() => <MaterialCommunityIcons name="bluetooth" size={24} />}
@@ -58,7 +61,7 @@ export default function PairingView() {
           disabled={isConnecting || ble.status === "CONNECTED"}
         >
           Conectar ao hardware
-        </Button>
+      </Button>*/}
         <Button
           contentStyle={styles.pairButtonInner}
           mode="elevated"
@@ -68,14 +71,15 @@ export default function PairingView() {
           Desconectar
         </Button>
       </View>
-    </>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  heading: {
-    textAlign: "left",
-    margin: 32
+  iconWrapper: {
+    marginVertical: 16,
+    justifyContent: "center",
+    alignItems: "center"
   },
   text: {
     marginHorizontal: 32,

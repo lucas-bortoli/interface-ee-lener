@@ -9,6 +9,7 @@ import { useBluetoothConnection } from "../../bluetooth/Context";
 import { useCharacteristicInt } from "../../bluetooth/useCharacteristic";
 import BluetoothUuids from "../../bluetooth/uuids";
 import { useDataContext } from "../../DataContext";
+import { useHeaderTitle } from "../../hooks/useHeaderTitle";
 
 export default function ParalelaView() {
   const ble = useBluetoothConnection();
@@ -35,11 +36,10 @@ export default function ParalelaView() {
 
   const shownWeight = countdown.isCounting ? weightRef.current : collectedWeight;
 
+  useHeaderTitle("Paralela");
+
   return (
     <>
-      <Text variant="headlineLarge" style={styles.heading}>
-        Paralela
-      </Text>
       <StatusDisplay
         style={styles.collectedData}
         textMain={shownWeight.toFixed(2)}

@@ -4,6 +4,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { hapticFeedbackControl } from "./haptics/HapticFeedback";
 import { useDataContext } from "./DataContext";
+import { useHeaderTitle } from "./hooks/useHeaderTitle";
 
 interface MenuButtonProps {
   icon: string;
@@ -24,7 +25,9 @@ function MenuButton(props: MenuButtonProps) {
       style={styles.menuButton}
       contentStyle={styles.menuButtonInner}
       mode="elevated"
-      icon={() => <MaterialCommunityIcons style={styles.menuButtonIcon} name={props.icon as any} size={24} />}
+      icon={() => (
+        <MaterialCommunityIcons style={styles.menuButtonIcon} name={props.icon as any} size={24} />
+      )}
       onPress={handlePress}
     >
       {props.label}
@@ -35,16 +38,15 @@ function MenuButton(props: MenuButtonProps) {
 export default function Menu() {
   const data = useDataContext();
 
+  useHeaderTitle("Menu principal");
+
   return (
     <>
-      <Text variant="headlineLarge" style={styles.heading}>
-        Menu
-      </Text>
       <View style={styles.buttonList}>
         <MenuButton
           icon="bluetooth"
           label="Conectar ao hardware"
-          target="/views/PairingView/"
+          target="/views/BluetoothConnectView/"
         ></MenuButton>
         <MenuButton
           icon="drag-vertical-variant"
@@ -78,14 +80,11 @@ const styles = StyleSheet.create({
     marginHorizontal: 32,
     gap: 8
   },
-  menuButton: {
-  },
+  menuButton: {},
   menuButtonInner: {
     flexDirection: "row-reverse",
     justifyContent: "space-between",
     paddingVertical: 12
   },
-  menuButtonIcon: {
-
-  }
+  menuButtonIcon: {}
 });

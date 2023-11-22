@@ -10,6 +10,7 @@ import { hapticFeedbackControl } from "../../haptics/HapticFeedback";
 import { useCharacteristicInt } from "../../bluetooth/useCharacteristic";
 import { useBluetoothConnection } from "../../bluetooth/Context";
 import BluetoothUuids from "../../bluetooth/uuids";
+import { useHeaderTitle } from "../../hooks/useHeaderTitle";
 
 const useRandom = ({ min, max }: { min: number; max: number }) => {
   const [value, setValue] = useNumber(0, { min, max });
@@ -37,7 +38,7 @@ export default function OperationView() {
   const [weightL] = useCharacteristicInt(bt.device!, BluetoothUuids.characteristicWeightL);
   const [weightR] = useCharacteristicInt(bt.device!, BluetoothUuids.characteristicWeightR);
 
-  console.log(setpoint)
+  useHeaderTitle("Operação");
 
   return (
     <>
