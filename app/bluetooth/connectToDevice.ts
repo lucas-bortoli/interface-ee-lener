@@ -62,15 +62,9 @@ async function findDevice(bleManager: BleManager): Promise<Device | null> {
  * or there is an error connecting to it, this function resolves to null.
  * @returns the connected device, or null if not connected.
  */
-export default async function connectToDevice(bleManager: BleManager): Promise<Device | null> {
-  const foundDevice = await findDevice(bleManager);
-
-  if (!foundDevice) {
-    return null;
-  }
-
+export default async function connectToDevice(device: Device): Promise<Device | null> {
   try {
-    const device = await foundDevice.connect({
+    device = await device.connect({
       refreshGatt: "OnConnected"
     });
 

@@ -1,6 +1,6 @@
 import { PropsWithChildren, createContext, useContext, useEffect, useMemo, useState } from "react";
 import requestBluetoothPermission from "./requestPermission";
-import { BleManager, Device, State } from "react-native-ble-plx";
+import { BleManager, Device, ScanMode, State } from "react-native-ble-plx";
 import connectToDevice from "./connectToDevice";
 import { ToastAndroid } from "react-native";
 
@@ -8,7 +8,9 @@ interface BTDisconnected {
   bleManager: BleManager | null;
   status: "DISCONNECTED";
   device: null;
-  connect(): Promise<boolean>;
+  connect(device: Device): Promise<boolean>;
+  beginScan(callbackDeviceFound: (device: Device) => void): Promise<boolean>;
+  stopScan(): void;
 }
 
 interface BTConnected {
@@ -49,7 +51,28 @@ export const BluetoothProvider = (props: PropsWithChildren) => {
       bleManager: bleManager,
       status: "DISCONNECTED",
       device: null,
-      connect: async () => {
+      connect: async (device) => {
+        const fail = (message: string) => {
+          ToastAndroid.showWithGravity(message, 3000, ToastAndroid.BOTTOM);
+          setBtDevice(null);
+          return false;
+        };
+
+        const connectedDevice = await connectToDevice(device);
+
+        if (!connectedDevice) return fail("Dispositivo não encontrado.");
+
+        device.onDisconnected((error, device) => {
+          console.info(`Bluetooth device ${device.id} disconnected, error=`, error);
+
+          setBtDevice(null);
+        });
+
+        setBtDevice(device);
+
+        return true;
+      },
+      beginScan: async (callback) => {
         const fail = (message: string) => {
           ToastAndroid.showWithGravity(message, 3000, ToastAndroid.BOTTOM);
           setBtDevice(null);
@@ -62,19 +85,26 @@ export const BluetoothProvider = (props: PropsWithChildren) => {
         if ((await requestBluetoothPermission()) === false)
           return fail("A permissão de Bluetooth não foi obtida.");
 
-        const device = await connectToDevice(bleManager);
+        console.log("Begin scanning");
 
-        if (!device) return fail("Dispositivo não encontrado.");
+        bleManager.stopDeviceScan();
+        bleManager.startDeviceScan(null, { scanMode: ScanMode.LowLatency }, (error, device) => {
+          if (error) {
+            // Handle error (scanning will be stopped automatically)
+            console.error("Error during device scan...", error);
+            return;
+          }
 
-        device.onDisconnected((error, device) => {
-          console.info(`Bluetooth device ${device.id} disconnected, error=`, error);
+          device = device!;
 
-          setBtDevice(null);
+          callback(device);
         });
 
-        setBtDevice(device);
-
         return true;
+      },
+      stopScan: () => {
+        console.log("stop scan");
+        bleManager?.stopDeviceScan();
       }
     };
   } else {

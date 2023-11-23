@@ -34,7 +34,7 @@ export function WeightIndicationBar(props: Props) {
         pointerEvents="none"
       />
       {run(() => {
-        const setpointHeight = ((props.setpointValue / props.maximumValue) * 100);
+        const setpointHeight = (props.setpointValue / props.maximumValue) * 100;
 
         return (
           <View
@@ -49,7 +49,7 @@ export function WeightIndicationBar(props: Props) {
                 color: props.setpointColor
               })}
             >
-              {(Math.round(props.setpointValue * 100) / 100).toFixed(2)}
+              {(Math.round(props.setpointValue * 100) / 100).toFixed(2)} kg
             </Text>
           </View>
         );
@@ -84,14 +84,14 @@ const styles = StyleSheet.create({
     position: "absolute",
     left: 0,
     bottom: 0,
-    width: "60%",
-    height: 2,
+    width: "100%",
+    height: 1,
     backgroundColor: "red"
   },
   setpointText: {
     position: "absolute",
-    right: "-60%",
-    top: -9,
+    right: "0%",
+    top: -16,
     fontFamily: "monospace"
   },
   labelTop: {

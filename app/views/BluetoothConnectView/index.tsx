@@ -1,33 +1,87 @@
-import { StyleSheet, View } from "react-native";
-import { Button, Text, ActivityIndicator } from "react-native-paper";
+import { Animated, ScrollView, StyleSheet, View } from "react-native";
+import { Button, Text, ActivityIndicator, Dialog, Portal } from "react-native-paper";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useBluetoothConnection } from "../../bluetooth/Context";
-import {
-  hapticFeedbackProcessError,
-  hapticFeedbackProcessStart
-} from "../../haptics/HapticFeedback";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useHeaderTitle } from "../../hooks/useHeaderTitle";
+import { useUpdate } from "../../hooks/useUpdate";
+import { Device } from "react-native-ble-plx";
+import {
+  hapticFeedbackControl,
+  hapticFeedbackProcessEnd,
+  hapticFeedbackProcessError
+} from "../../haptics/HapticFeedback";
+import { run } from "../../utils/run";
 
 export default function BluetoothConnectView() {
   const [isConnecting, setConnecting] = useState(false);
   const ble = useBluetoothConnection();
-  const startPair = async () => {
+
+  const $foundDevices = useRef<Device[]>([]);
+  const updateOnFoundDevice = useUpdate();
+
+  const [connectionModalShown, setConnectionModalShown] = useState(false);
+
+  const pulseAnim = useRef(new Animated.Value(0));
+
+  useEffect(() => {
+    Animated.timing(pulseAnim.current, {
+      toValue: ble.status === "CONNECTED" ? 1 : 0.1,
+      duration: ble.status === "CONNECTED" ? 2000 : 2000,
+      useNativeDriver: true
+    }).start();
+  }, [pulseAnim.current, ble.status]);
+
+  const showConnectionModal = async () => {
+    if (ble.status === "CONNECTED") {
+      return;
+    }
+
+    const scanBegan = await ble.beginScan((device) => {
+      if (!device.name) {
+        return;
+      }
+
+      // Adiciona o dispositivo à lista de dispositivos apenas se já não está ali
+      if ($foundDevices.current.findIndex((d) => d.id === device.id) > -1) {
+        return;
+      }
+
+      $foundDevices.current = [...$foundDevices.current, device];
+      updateOnFoundDevice();
+    });
+
+    // Só mostrar o modal se o scan começou
+    // Ex. usuário está com BT desligado, não mostrar modal
+    if (scanBegan) {
+      setConnectionModalShown(true);
+      $foundDevices.current = [];
+    } else {
+      hapticFeedbackProcessError();
+    }
+  };
+
+  const dismissConnectionModal = () => {
+    ble.bleManager?.stopDeviceScan();
+    setConnectionModalShown(false);
+
+    if (ble.status === "DISCONNECTED") {
+      ble.stopScan();
+    }
+  };
+
+  const onDeviceSelect = (device: Device) => {
     if (ble.status !== "DISCONNECTED") {
       return;
     }
 
+    dismissConnectionModal();
+    hapticFeedbackControl();
     setConnecting(true);
-
-    const success = await ble.connect();
-
-    if (success) {
-      hapticFeedbackProcessStart();
-    } else {
-      hapticFeedbackProcessError();
-    }
-
-    setConnecting(false);
+    ble.connect(device).then(() => {
+      setConnecting(false);
+      hapticFeedbackProcessEnd();
+    });
   };
 
   const disconnect = async () => {
@@ -36,47 +90,92 @@ export default function BluetoothConnectView() {
     }
 
     await ble.disconnect();
+    hapticFeedbackControl();
   };
 
   useHeaderTitle("Conexão Bluetooth");
 
+  console.log($foundDevices.current.length);
+
   return (
     <View>
-      <View style={styles.iconWrapper}>
-        <MaterialCommunityIcons name="bluetooth" size={64} color="#484848" />
-      </View>
-      <Text style={styles.text}>Conecte ao dispositivo via Bluetooth.</Text>
+      <Animated.View style={{ ...styles.iconWrapper, opacity: pulseAnim.current }}>
+        <MaterialCommunityIcons name="bluetooth" size={96} color="#484848" />
+      </Animated.View>
+      {run(() => {
+        if (ble.status === "CONNECTED") {
+          return <Text style={styles.text}>Conectado ao dispositivo {ble.device!.name}.</Text>;
+        }
+
+        return <Text style={styles.text}>Conecte ao dispositivo via Bluetooth.</Text>;
+      })}
       {isConnecting && (
         <View style={styles.statusIndicatorContainer}>
           <ActivityIndicator size="small" />
-          <Text style={styles.statusIndicator}>Procurando dispositivo...</Text>
+          <Text style={styles.statusIndicator}>Conectando ao dispositivo...</Text>
         </View>
       )}
       <View style={styles.buttons}>
-        {/*<Button
-          contentStyle={styles.pairButtonInner}
-          mode="elevated"
-          icon={() => <MaterialCommunityIcons name="bluetooth" size={24} />}
-          onPress={startPair}
-          disabled={isConnecting || ble.status === "CONNECTED"}
-        >
-          Conectar ao hardware
-      </Button>*/}
-        <Button
-          contentStyle={styles.pairButtonInner}
-          mode="elevated"
-          onPress={disconnect}
-          disabled={isConnecting || ble.status === "DISCONNECTED"}
-        >
-          Desconectar
-        </Button>
+        {run(() => {
+          if (ble.status === "CONNECTED") {
+            return (
+              <Button
+                contentStyle={styles.pairButtonInner}
+                mode="elevated"
+                onPress={disconnect}
+                disabled={isConnecting}
+              >
+                Desconectar
+              </Button>
+            );
+          } else {
+            return (
+              <Button
+                contentStyle={styles.pairButtonInner}
+                mode="elevated"
+                onPress={showConnectionModal}
+                disabled={isConnecting}
+              >
+                Procurar dispositivos...
+              </Button>
+            );
+          }
+        })}
       </View>
+      <Portal>
+        <Dialog visible={connectionModalShown} onDismiss={dismissConnectionModal}>
+          <Dialog.Title>Selecione o dispositivo</Dialog.Title>
+          <Dialog.Content>
+            <View style={styles.statusIndicatorModalContainer}>
+              <ActivityIndicator size="small" />
+              <Text style={styles.statusIndicator}>Procurando dispositivos...</Text>
+            </View>
+            <ScrollView contentContainerStyle={styles.deviceList}>
+              {$foundDevices.current.map((device, index) => {
+                return (
+                  <Button
+                    key={device.id}
+                    contentStyle={styles.deviceListDevice}
+                    onPress={() => onDeviceSelect(device)}
+                  >
+                    {device.name}
+                  </Button>
+                );
+              })}
+            </ScrollView>
+          </Dialog.Content>
+          <Dialog.Actions>
+            <Button onPress={dismissConnectionModal}>Cancelar</Button>
+          </Dialog.Actions>
+        </Dialog>
+      </Portal>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   iconWrapper: {
+    marginTop: 64,
     marginVertical: 16,
     justifyContent: "center",
     alignItems: "center"
@@ -101,5 +200,17 @@ const styles = StyleSheet.create({
     marginHorizontal: 32,
     flexDirection: "row",
     alignItems: "center"
+  },
+  deviceList: {
+    gap: 4
+  },
+  deviceListDevice: {
+    justifyContent: "flex-start"
+  },
+  statusIndicatorModalContainer: {
+    flexDirection: "row",
+    justifyContent: "flex-start",
+    alignItems: "center",
+    marginBottom: 16
   }
 });
