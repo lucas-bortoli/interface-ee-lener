@@ -9,13 +9,14 @@ import {
   hapticFeedbackProcessEnd,
   hapticFeedbackProcessStart
 } from "../../haptics/HapticFeedback";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { timeout } from "../../utils/timeout";
 import { useBluetoothConnection } from "../../bluetooth/Context";
 import { useCharacteristicInt } from "../../bluetooth/useCharacteristic";
 import BluetoothUuids from "../../bluetooth/uuids";
 import { useDataContext } from "../../DataContext";
 import { useHeaderTitle } from "../../hooks/useHeaderTitle";
+import { ControlCodes, useControlCharacteristic } from "../../bluetooth/useControlCharacteristic";
 
 export default function MalhaAbertaView() {
   const isOperating = useBoolean();
@@ -24,7 +25,8 @@ export default function MalhaAbertaView() {
   const isWindingDown = useBoolean();
 
   const ble = useBluetoothConnection();
-  const [btPwm, writeBtPwm] = useCharacteristicInt(ble.device, BluetoothUuids.characteristicPwm);
+  const [btPwm] = useCharacteristicInt(ble.device, BluetoothUuids.characteristicPwm);
+  const sendControl = useControlCharacteristic(ble.device!);
 
   const handleStartOperation = () => {
     if (isOperating.value === true) {
@@ -48,15 +50,7 @@ export default function MalhaAbertaView() {
     isOperating.setFalse();
     isWindingDown.setTrue();
 
-    let _pwm = btPwm;
-    while (_pwm > 0) {
-      _pwm -= 5;
-      await writeBtPwm(_pwm);
-      hapticFeedbackControl();
-      await timeout(500);
-    }
-
-    isWindingDown.setFalse();
+    await sendControl(ControlCodes.ResetPwmGradual);
   };
 
   const changeMese = async (sign: "+" | "-") => {
@@ -64,12 +58,15 @@ export default function MalhaAbertaView() {
       return;
     }
 
-    const newPwm = btPwm + (sign === "+" ? 5 : -5);
-    const clamped = Math.max(Math.min(newPwm, 100), 0);
-
-    await writeBtPwm(clamped);
+    await sendControl(sign === "+" ? ControlCodes.IncreasePwmStep : ControlCodes.DecreasePwmStep);
     hapticFeedbackControl();
   };
+
+  useEffect(() => {
+    if (isWindingDown && btPwm === 0) {
+      isWindingDown.setFalse();
+    }
+  }, [isWindingDown, btPwm]);
 
   useHeaderTitle("Malha aberta");
 

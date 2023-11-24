@@ -5,7 +5,8 @@ const BluetoothUuids = {
   characteristicPwm: fullUUID("fff1"),
   characteristicMese: fullUUID("fff2"),
   characteristicWeightL: fullUUID("fffa"),
-  characteristicWeightR: fullUUID("fffb")
+  characteristicWeightR: fullUUID("fffb"),
+  characteristicControl: fullUUID("fff8")
 };
 
 export default BluetoothUuids;

@@ -1,15 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
-import { BleErrorCode, BleManager, Device } from "react-native-ble-plx";
+import { BleErrorCode, Device } from "react-native-ble-plx";
 import BluetoothUuids from "./uuids";
 import { Buffer } from "buffer";
-import { useUpdate } from "../hooks/useUpdate";
 
-export const useCharacteristic = (
+export const useCharacteristicInt = (
   device: Device | null,
   charUuid: string
-): [Buffer, () => Promise<boolean>] => {
-  const buffer = useMemo(() => Buffer.alloc(4), []);
-  const update = useUpdate();
+): [number, (newVal: number, kind: "int" | "double") => void] => {
+  const [value, setValue] = useState<number>(0);
 
   useEffect(() => {
     if (device === null) {
@@ -46,57 +44,48 @@ export const useCharacteristic = (
           return;
         }
 
-        buffer.fill(0);
-        buffer.write(characteristic.value, 0, "base64");
+        const value = Buffer.from(characteristic.value, "base64").readInt32LE(0);
 
-        update();
+        setValue(value);
       }
     );
 
     return () => {
       console.info("Unmounting: stopping subscription");
-      buffer.fill(0);
       subscription.remove();
     };
   }, [device]);
 
-  const writeBuffer = async () => {
+  const publicSetValue = async (newValue: number, kind: "int" | "double") => {
     if (device === null) {
       return false;
     }
 
+    const buffer = Buffer.alloc(4);
+
+    if (kind === "double") {
+      buffer.writeDoubleLE(newValue);
+    } else {
+      buffer.writeInt32LE(newValue);
+    }
+
+    console.log("--> " + newValue);
+
     try {
-      console.info("Writing data to characteristic");
+      setValue(newValue);
+
       await device.writeCharacteristicWithoutResponseForService(
         BluetoothUuids.service,
         charUuid,
         buffer.toString("base64")
       );
-      console.info("Data written");
-      update();
+
       return true;
     } catch (error) {
       console.error("Failed to write characteristic", charUuid, buffer.toString("hex"));
-      update();
       return false;
     }
   };
 
-  return [buffer, writeBuffer];
-};
-
-export const useCharacteristicInt = (
-  device: Device | null,
-  charUuid: string
-): [number, (newVal: number) => void] => {
-  const [buffer, writeBuffer] = useCharacteristic(device, charUuid);
-  const int = buffer.readInt32LE(0);
-
-  const writeInt = (val: number) => {
-    buffer.fill(0);
-    buffer.writeInt32LE(val);
-    return writeBuffer();
-  };
-
-  return [int, writeInt];
+  return [value, publicSetValue];
 };
