@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { BleErrorCode, Device } from "react-native-ble-plx";
 import BluetoothUuids from "./uuids";
 import { Buffer } from "buffer";
@@ -51,12 +51,12 @@ export const useCharacteristicInt = (
     );
 
     return () => {
-      console.info("Unmounting: stopping subscription");
+      console.info(`Unmounting: stopping subscription to ${charUuid}`);
       subscription.remove();
     };
   }, [device]);
 
-  const publicSetValue = async (newValue: number, kind: "int" | "double") => {
+  const writeValueToDevice = async (newValue: number, kind: "int" | "double") => {
     if (device === null) {
       return false;
     }
@@ -87,5 +87,5 @@ export const useCharacteristicInt = (
     }
   };
 
-  return [value, publicSetValue];
+  return [value, writeValueToDevice];
 };

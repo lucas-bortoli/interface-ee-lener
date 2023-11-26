@@ -18,9 +18,8 @@ export default function ParalelaView() {
   const [weightR] = useCharacteristicInt(ble.device, BluetoothUuids.characteristicWeightR);
 
   const [collectedWeight, setCollectedWeight] = useDataContext().parallelCollectedWeight;
-  const weightRef = useRef<number>();
 
-  console.log(weightL, weightR, (weightL + weightR) / 2);
+  const weightRef = useRef<number>();
   weightRef.current = (weightL + weightR) / 2;
 
   const countdown = useCountdown(async () => {

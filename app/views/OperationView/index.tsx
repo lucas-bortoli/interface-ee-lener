@@ -66,7 +66,9 @@ export default function OperationView() {
       </View>
       <View style={styles.group}>
         <View style={styles.statusDisplays}>
-          <StatusDisplay textLeft="MESE" textMain={currentMese.toString()} />
+          <StatusDisplay textLeft="MESE" textMain={currentMese.toString()} textRight="max" />
+          <StatusDisplay textLeft="MESE" textMain={currentMese.toString()} textRight="atual" />
+          <StatusDisplay textLeft="PWM" textMain={currentMese.toString()} textRight="µS" />
         </View>
         <View style={styles.weightSetpointButtonsWrapper}>
           <FAB
@@ -110,7 +112,7 @@ const styles = StyleSheet.create({
     gap: 2
   },
   statusDisplays: {
-    gap: 8,
+    gap: 2,
     flexGrow: 1
   }
 });
