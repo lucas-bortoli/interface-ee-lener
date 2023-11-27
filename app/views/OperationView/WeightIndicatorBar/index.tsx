@@ -63,9 +63,9 @@ export function WeightIndicationBar(props: Props) {
 const styles = StyleSheet.create({
   box: {
     backgroundColor: "#323232",
-    elevation: 2,
+    elevation: 4,
     position: "relative",
-    height: 256,
+    height: 200,
     width: 72,
     justifyContent: "center",
     alignItems: "center",

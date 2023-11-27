@@ -1,5 +1,5 @@
-import { Animated, StyleSheet, View } from "react-native";
-import { Button, FAB, Text } from "react-native-paper";
+import { StyleSheet, View } from "react-native";
+import { FAB } from "react-native-paper";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { StatusDisplay } from "../../components/StatusDisplay";
 import { useDataContext } from "../../DataContext";
@@ -11,20 +11,6 @@ import { useCharacteristicInt } from "../../bluetooth/useCharacteristic";
 import { useBluetoothConnection } from "../../bluetooth/Context";
 import BluetoothUuids from "../../bluetooth/uuids";
 import { useHeaderTitle } from "../../hooks/useHeaderTitle";
-
-const useRandom = ({ min, max }: { min: number; max: number }) => {
-  const [value, setValue] = useNumber(0, { min, max });
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setValue(Math.floor(Math.random() * max));
-    }, 500);
-
-    return () => clearInterval(interval);
-  }, []);
-
-  return value;
-};
 
 export default function OperationView() {
   const data = useDataContext();
@@ -64,25 +50,53 @@ export default function OperationView() {
           style={styles.weightBar}
         />
       </View>
-      <View style={styles.group}>
-        <View style={styles.statusDisplays}>
-          <StatusDisplay textLeft="MESE" textMain={currentMese.toString()} textRight="max" />
-          <StatusDisplay textLeft="MESE" textMain={currentMese.toString()} textRight="atual" />
-          <StatusDisplay textLeft="PWM" textMain={currentMese.toString()} textRight="µS" />
+      <View style={StyleSheet.compose(styles.group, styles.displaysGroup)}>
+        <StatusDisplay textLeft="PWM" textMain={currentMese.toString()} textRight="µS" />
+      </View>
+      <View style={StyleSheet.compose(styles.group, styles.displaysGroup)}>
+        <View style={styles.statusDisplayWrapper}>
+          <StatusDisplay
+            textLeft="MESE"
+            textMain={currentMese.toString()}
+            textRight="max"
+            style={styles.display}
+          />
+          <View style={styles.statusDisplayButtons}>
+            <FAB
+              animated={false}
+              size="small"
+              icon={() => <MaterialCommunityIcons name="minus" size={24} />}
+              onPress={() => setSetpoint(setpoint - Math.floor(currentMese * 0.05))}
+            ></FAB>
+            <FAB
+              animated={false}
+              size="small"
+              icon={() => <MaterialCommunityIcons name="plus" size={24} />}
+              onPress={() => setSetpoint(setpoint + Math.floor(currentMese * 0.05))}
+            ></FAB>
+          </View>
         </View>
-        <View style={styles.weightSetpointButtonsWrapper}>
-          <FAB
-            animated={false}
-            size="small"
-            icon={() => <MaterialCommunityIcons name="plus" size={24} />}
-            onPress={() => setSetpoint(setpoint + Math.floor(currentMese * 0.05))}
-          ></FAB>
-          <FAB
-            animated={false}
-            size="small"
-            icon={() => <MaterialCommunityIcons name="minus" size={24} />}
-            onPress={() => setSetpoint(setpoint - Math.floor(currentMese * 0.05))}
-          ></FAB>
+        <View style={styles.statusDisplayWrapper}>
+          <StatusDisplay
+            textLeft="MESE"
+            textMain={currentMese.toString()}
+            textRight="atual"
+            style={styles.display}
+          />
+          <View style={styles.statusDisplayButtons}>
+            <FAB
+              animated={false}
+              size="small"
+              icon={() => <MaterialCommunityIcons name="minus" size={24} />}
+              onPress={() => setSetpoint(setpoint - Math.floor(currentMese * 0.05))}
+            ></FAB>
+            <FAB
+              animated={false}
+              size="small"
+              icon={() => <MaterialCommunityIcons name="plus" size={24} />}
+              onPress={() => setSetpoint(setpoint + Math.floor(currentMese * 0.05))}
+            ></FAB>
+          </View>
         </View>
       </View>
     </>
@@ -94,25 +108,35 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     borderColor: "#ccc",
     borderWidth: 1,
-    marginVertical: 8,
+    marginVertical: 2,
     marginHorizontal: 16,
     padding: 16,
     flexDirection: "row",
     alignItems: "center",
     gap: 16
   },
-  weightSetpointButtonsWrapper: {
+  displaysGroup: {
     flexDirection: "column",
+    alignItems: "stretch",
+    gap: 2
+  },
+  statusDisplayWrapper: {
+    flexDirection: "row",
+    alignItems: "center",
     gap: 8
+  },
+  display: {
+    flexGrow: 1
+  },
+  statusDisplayButtons: {
+    flexDirection: "row",
+    gap: 2
   },
   weightBar: {
     flexGrow: 1
   },
   weightBarsWrapper: {
+    marginTop: 16,
     gap: 2
-  },
-  statusDisplays: {
-    gap: 2,
-    flexGrow: 1
   }
 });
