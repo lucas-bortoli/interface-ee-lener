@@ -95,7 +95,7 @@ export default function BluetoothConnectView() {
 
   useHeaderTitle("Conexão Bluetooth");
 
-  console.log($foundDevices.current.length);
+  console.log(`Encontrado ${$foundDevices.current.length} dispositivos distintos`);
 
   return (
     <View>

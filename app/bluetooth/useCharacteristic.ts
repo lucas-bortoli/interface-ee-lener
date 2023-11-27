@@ -54,7 +54,7 @@ export const useCharacteristicInt = (
       console.info(`Unmounting: stopping subscription to ${charUuid}`);
       subscription.remove();
     };
-  }, [device]);
+  }, [device, charUuid]);
 
   const writeValueToDevice = async (newValue: number, kind: "int" | "double") => {
     if (device === null) {

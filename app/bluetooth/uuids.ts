@@ -1,12 +1,14 @@
 import { fullUUID } from "react-native-ble-plx";
 
 const BluetoothUuids = {
-  service: fullUUID("bbbb"),
-  characteristicPwm: fullUUID("fff1"),
-  characteristicMese: fullUUID("fff2"),
-  characteristicWeightL: fullUUID("fffa"),
-  characteristicWeightR: fullUUID("fffb"),
-  characteristicControl: fullUUID("fff8")
+  service: fullUUID("abb4"),
+  characteristicPwm: fullUUID("ff01"),
+  characteristicMese: fullUUID("ff02"),
+  characteristicWeightL: fullUUID("ff03"),
+  characteristicWeightR: fullUUID("ff04"),
+  characteristicControl: fullUUID("ff0f")
 };
+
+console.log("Bluetooth UUIDs", BluetoothUuids);
 
 export default BluetoothUuids;
