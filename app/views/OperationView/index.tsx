@@ -20,6 +20,9 @@ export default function OperationView() {
 
   const [weightL] = useCharacteristicInt(bt.device!, BluetoothUuids.characteristicWeightL);
   const [weightR] = useCharacteristicInt(bt.device!, BluetoothUuids.characteristicWeightR);
+  const [pwm] = useCharacteristicInt(bt.device!, BluetoothUuids.characteristicPwm);
+  const [mese] = useCharacteristicInt(bt.device!, BluetoothUuids.characteristicMese);
+  const [meseMax] = useCharacteristicInt(bt.device!, BluetoothUuids.characteristicMeseMax);
 
   return (
     <ScrollView>
@@ -46,13 +49,13 @@ export default function OperationView() {
         />
       </View>
       <View style={StyleSheet.compose(styles.group, styles.displaysGroup)}>
-        <StatusDisplay textLeft="PWM" textMain={currentMese.toString()} textRight="µS" />
+        <StatusDisplay textLeft="PWM" textMain={pwm.toString()} textRight="µS" />
       </View>
       <View style={Object.assign({}, styles.group, styles.displaysGroup, styles.lastGroup)}>
         <View style={styles.statusDisplayWrapper}>
           <StatusDisplay
             textLeft="MESE"
-            textMain={currentMese.toString()}
+            textMain={meseMax.toString()}
             textRight="max"
             style={styles.display}
           />
@@ -74,7 +77,7 @@ export default function OperationView() {
         <View style={styles.statusDisplayWrapper}>
           <StatusDisplay
             textLeft="MESE"
-            textMain={currentMese.toString()}
+            textMain={mese.toString()}
             textRight="atual"
             style={styles.display}
           />

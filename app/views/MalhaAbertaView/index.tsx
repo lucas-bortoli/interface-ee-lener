@@ -49,6 +49,7 @@ export default function MalhaAbertaView() {
     isOperating.setFalse();
     isWindingDown.setTrue();
 
+    await sendControl(ControlCodes.SaveMese);
     await sendControl(ControlCodes.ResetPwmGradual);
   };
 
