@@ -6,13 +6,18 @@ interface Props extends PropsWithChildren {
   textLeft?: string;
   textMain?: string;
   textRight?: string;
+  textMainAlign?: "left" | "center" | "right";
 }
 
 export function StatusDisplay(props: Props) {
   return (
     <View style={StyleSheet.compose(styles.box, props.style)}>
       <Text style={styles.labelLeft}>{props.textLeft}</Text>
-      <Text style={styles.label}>{props.textMain}</Text>
+      <Text
+        style={StyleSheet.compose(styles.label, { textAlign: props.textMainAlign ?? "center" })}
+      >
+        {props.textMain}
+      </Text>
       <Text style={styles.labelRight}>{props.textRight}</Text>
     </View>
   );
@@ -41,8 +46,8 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     textAlign: "center",
     position: "absolute",
-    left: 0,
-    right: 0
+    left: 12,
+    right: 12
   },
   labelRight: {
     fontFamily: "monospace",

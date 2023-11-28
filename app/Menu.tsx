@@ -1,10 +1,8 @@
 import { StyleSheet, View } from "react-native";
 import { Button, Text } from "react-native-paper";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
 import { hapticFeedbackControl } from "./haptics/HapticFeedback";
 import { useDataContext } from "./DataContext";
-import { useHeaderTitle } from "./hooks/useHeaderTitle";
 
 interface MenuButtonProps {
   icon: string;
@@ -13,11 +11,8 @@ interface MenuButtonProps {
 }
 
 function MenuButton(props: MenuButtonProps) {
-  const router = useRouter();
-
   const handlePress = () => {
     hapticFeedbackControl();
-    router.push(props.target);
   };
 
   return (
@@ -37,8 +32,6 @@ function MenuButton(props: MenuButtonProps) {
 
 export default function Menu() {
   const data = useDataContext();
-
-  useHeaderTitle("Menu principal");
 
   return (
     <>
@@ -71,10 +64,6 @@ export default function Menu() {
 }
 
 const styles = StyleSheet.create({
-  heading: {
-    textAlign: "left",
-    margin: 32
-  },
   buttonList: {
     marginVertical: 16,
     marginHorizontal: 32,

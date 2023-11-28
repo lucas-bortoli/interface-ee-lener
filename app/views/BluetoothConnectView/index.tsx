@@ -3,7 +3,6 @@ import { Button, Text, ActivityIndicator, Dialog, Portal } from "react-native-pa
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useBluetoothConnection } from "../../bluetooth/Context";
 import { useEffect, useRef, useState } from "react";
-import { useHeaderTitle } from "../../hooks/useHeaderTitle";
 import { useUpdate } from "../../hooks/useUpdate";
 import { Device } from "react-native-ble-plx";
 import {
@@ -12,6 +11,7 @@ import {
   hapticFeedbackProcessError
 } from "../../haptics/HapticFeedback";
 import { run } from "../../utils/run";
+import { NextViewButton } from "../../components/NextViewButton";
 
 export default function BluetoothConnectView() {
   const [isConnecting, setConnecting] = useState(false);
@@ -93,12 +93,10 @@ export default function BluetoothConnectView() {
     hapticFeedbackControl();
   };
 
-  useHeaderTitle("Conexão Bluetooth");
-
   console.log(`Encontrado ${$foundDevices.current.length} dispositivos distintos`);
 
-  return (
-    <View>
+  const contents = (
+    <View style={{ flex: 1 }}>
       <Animated.View style={{ ...styles.iconWrapper, opacity: pulseAnim.current }}>
         <MaterialCommunityIcons name="bluetooth" size={96} color="#484848" />
       </Animated.View>
@@ -169,8 +167,16 @@ export default function BluetoothConnectView() {
           </Dialog.Actions>
         </Dialog>
       </Portal>
+      <NextViewButton
+        visible={connectionModalShown === false && ble.status === "CONNECTED"}
+        icon="drag-vertical-variant"
+        label={'Ir para "Paralela"'}
+        target="Paralela"
+      />
     </View>
   );
+
+  return contents;
 }
 
 const styles = StyleSheet.create({

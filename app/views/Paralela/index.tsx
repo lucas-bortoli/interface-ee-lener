@@ -1,5 +1,5 @@
-import { StyleSheet } from "react-native";
-import { Button, Text } from "react-native-paper";
+import { StyleSheet, View } from "react-native";
+import { Button, Portal, Text } from "react-native-paper";
 import { useCountdown } from "../../hooks/useCountdown";
 import { useRef, useState } from "react";
 import { StatusDisplay } from "../../components/StatusDisplay";
@@ -9,7 +9,8 @@ import { useBluetoothConnection } from "../../bluetooth/Context";
 import { useCharacteristicInt } from "../../bluetooth/useCharacteristic";
 import BluetoothUuids from "../../bluetooth/uuids";
 import { useDataContext } from "../../DataContext";
-import { useHeaderTitle } from "../../hooks/useHeaderTitle";
+import { ScrollView } from "react-native-gesture-handler";
+import { NextViewButton } from "../../components/NextViewButton";
 
 export default function ParalelaView() {
   const ble = useBluetoothConnection();
@@ -19,31 +20,49 @@ export default function ParalelaView() {
 
   const [collectedWeight, setCollectedWeight] = useDataContext().parallelCollectedWeight;
 
-  const weightRef = useRef<number>();
-  weightRef.current = (weightL + weightR) / 2;
+  const weightLRef = useRef<number>();
+  const weightRRef = useRef<number>();
+
+  weightLRef.current = weightL;
+  weightRRef.current = weightR;
 
   const countdown = useCountdown(async () => {
     // Dado coletado!
     hapticFeedbackProcessEnd();
 
-    setCollectedWeight(weightRef.current!);
+    setCollectedWeight(((weightLRef.current ?? 0) + (weightRRef.current ?? 0)) / 2);
   }, 1000);
 
   const startCountdown = () => {
     countdown.setCount(5);
   };
 
-  const shownWeight = countdown.isCounting ? weightRef.current : collectedWeight;
-
-  useHeaderTitle("Paralela");
+  const shownWeight = countdown.isCounting ? (weightL + weightR) / 2 : collectedWeight;
 
   return (
-    <>
-      <StatusDisplay
-        style={styles.collectedData}
-        textMain={shownWeight.toFixed(2)}
-        textRight="kg"
-      />
+    <View style={{ flex: 1 }}>
+      <View style={StyleSheet.compose(styles.barRow, { marginTop: 144 })}>
+        <StatusDisplay
+          style={StyleSheet.compose(styles.collectedData, styles.bar)}
+          textLeft="L"
+          textMain={weightL.toFixed(0)}
+          textRight="kg"
+        />
+        <StatusDisplay
+          style={StyleSheet.compose(styles.collectedData, styles.bar)}
+          textLeft="R"
+          textMain={weightR.toFixed(0)}
+          textRight="kg"
+        />
+      </View>
+      <View style={StyleSheet.compose(styles.barRow, { marginBottom: 32 })}>
+        <StatusDisplay
+          style={StyleSheet.compose(styles.collectedData, styles.bar)}
+          textLeft="coleta"
+          textMain={shownWeight.toFixed(2)}
+          textRight="kg"
+        />
+      </View>
       <Button
         style={styles.actionButton}
         contentStyle={styles.actionButtonInner}
@@ -54,18 +73,28 @@ export default function ParalelaView() {
       >
         {countdown.isCounting ? `${countdown.count}s` : `Iniciar`}
       </Button>
-    </>
+      <NextViewButton
+        icon="seat-legroom-extra"
+        label={'Ir para "Malha aberta"'}
+        target="Malha Aberta"
+        visible={true}
+      />
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  heading: {
-    margin: 32,
-    textAlign: "left"
+  barRow: {
+    flexDirection: "row",
+    marginHorizontal: 16,
+    gap: 4
+  },
+  bar: {
+    flexGrow: 1
   },
   actionButton: {
-    marginTop: 48,
-    margin: 32,
+    marginTop: 0,
+    margin: 16,
     backgroundColor: "#f0f0f0"
   },
   actionButtonInner: {
@@ -73,7 +102,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#f0f0f0"
   },
   collectedData: {
-    marginVertical: 16,
-    marginHorizontal: 32
+    marginVertical: 2
   }
 });

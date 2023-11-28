@@ -1,16 +1,13 @@
-import { StyleSheet, View } from "react-native";
+import { ScrollView, StyleSheet, View } from "react-native";
 import { FAB } from "react-native-paper";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { StatusDisplay } from "../../components/StatusDisplay";
 import { useDataContext } from "../../DataContext";
 import { WeightIndicationBar } from "./WeightIndicatorBar";
-import { useNumber } from "../../hooks/useNumber";
-import { useEffect, useState } from "react";
-import { hapticFeedbackControl } from "../../haptics/HapticFeedback";
+import { useState } from "react";
 import { useCharacteristicInt } from "../../bluetooth/useCharacteristic";
 import { useBluetoothConnection } from "../../bluetooth/Context";
 import BluetoothUuids from "../../bluetooth/uuids";
-import { useHeaderTitle } from "../../hooks/useHeaderTitle";
 
 export default function OperationView() {
   const data = useDataContext();
@@ -24,10 +21,8 @@ export default function OperationView() {
   const [weightL] = useCharacteristicInt(bt.device!, BluetoothUuids.characteristicWeightL);
   const [weightR] = useCharacteristicInt(bt.device!, BluetoothUuids.characteristicWeightR);
 
-  useHeaderTitle("Operação");
-
   return (
-    <>
+    <ScrollView>
       <View style={StyleSheet.compose(styles.group, styles.weightBarsWrapper)}>
         <WeightIndicationBar
           textTop="ESQ"
@@ -53,7 +48,7 @@ export default function OperationView() {
       <View style={StyleSheet.compose(styles.group, styles.displaysGroup)}>
         <StatusDisplay textLeft="PWM" textMain={currentMese.toString()} textRight="µS" />
       </View>
-      <View style={StyleSheet.compose(styles.group, styles.displaysGroup)}>
+      <View style={Object.assign({}, styles.group, styles.displaysGroup, styles.lastGroup)}>
         <View style={styles.statusDisplayWrapper}>
           <StatusDisplay
             textLeft="MESE"
@@ -99,7 +94,7 @@ export default function OperationView() {
           </View>
         </View>
       </View>
-    </>
+    </ScrollView>
   );
 }
 
@@ -131,6 +126,10 @@ const styles = StyleSheet.create({
   statusDisplayButtons: {
     flexDirection: "row",
     gap: 2
+  },
+  lastGroup: {
+    /* for scrolling */
+    marginBottom: 16
   },
   weightBar: {
     flexGrow: 1
