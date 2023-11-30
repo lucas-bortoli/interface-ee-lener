@@ -1,7 +1,7 @@
 import { StyleSheet, View } from "react-native";
-import { Button, Portal, Text } from "react-native-paper";
+import { Button } from "react-native-paper";
 import { useCountdown } from "../../hooks/useCountdown";
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import { StatusDisplay } from "../../components/StatusDisplay";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { hapticFeedbackProcessEnd } from "../../haptics/HapticFeedback";
@@ -9,7 +9,6 @@ import { useBluetoothConnection } from "../../bluetooth/Context";
 import { useCharacteristicInt } from "../../bluetooth/useCharacteristic";
 import BluetoothUuids from "../../bluetooth/uuids";
 import { useDataContext } from "../../DataContext";
-import { ScrollView } from "react-native-gesture-handler";
 import { NextViewButton } from "../../components/NextViewButton";
 
 export default function ParalelaView() {

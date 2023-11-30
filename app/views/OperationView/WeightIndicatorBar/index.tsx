@@ -2,7 +2,6 @@ import { View, StyleSheet, ViewStyle, StyleProp } from "react-native";
 import { Text } from "react-native-paper";
 import { run } from "../../../utils/run";
 import { useSlideGesture } from "./useSlideGesture";
-import { useEffect } from "react";
 
 interface Props {
   style?: StyleProp<ViewStyle> | StyleProp<ViewStyle>[];

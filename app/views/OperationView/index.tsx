@@ -50,6 +50,12 @@ export default function OperationView() {
       </View>
       <View style={StyleSheet.compose(styles.group, styles.displaysGroup)}>
         <StatusDisplay textLeft="PWM" textMain={pwm.toString()} textRight="µS" />
+        <StatusDisplay
+          textLeft="MESE"
+          textMain={mese.toString()}
+          textRight="atual"
+          style={styles.display}
+        />
       </View>
       <View style={Object.assign({}, styles.group, styles.displaysGroup, styles.lastGroup)}>
         <View style={styles.statusDisplayWrapper}>
@@ -74,28 +80,7 @@ export default function OperationView() {
             ></FAB>
           </View>
         </View>
-        <View style={styles.statusDisplayWrapper}>
-          <StatusDisplay
-            textLeft="MESE"
-            textMain={mese.toString()}
-            textRight="atual"
-            style={styles.display}
-          />
-          <View style={styles.statusDisplayButtons}>
-            <FAB
-              animated={false}
-              size="small"
-              icon={() => <MaterialCommunityIcons name="minus" size={24} />}
-              onPress={() => setSetpoint(setpoint - Math.floor(currentMese * 0.05))}
-            ></FAB>
-            <FAB
-              animated={false}
-              size="small"
-              icon={() => <MaterialCommunityIcons name="plus" size={24} />}
-              onPress={() => setSetpoint(setpoint + Math.floor(currentMese * 0.05))}
-            ></FAB>
-          </View>
-        </View>
+        <View style={styles.statusDisplayWrapper}></View>
       </View>
     </ScrollView>
   );

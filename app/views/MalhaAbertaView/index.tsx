@@ -1,5 +1,5 @@
-import { ScrollView, StyleSheet, View } from "react-native";
-import { Button, FAB, Portal } from "react-native-paper";
+import { StyleSheet, View } from "react-native";
+import { Button, FAB } from "react-native-paper";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { StatusDisplay } from "../../components/StatusDisplay";
 import { useBoolean } from "../../hooks/useBoolean";

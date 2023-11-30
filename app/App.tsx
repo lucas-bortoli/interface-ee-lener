@@ -2,7 +2,7 @@ import { registerRootComponent } from "expo";
 import { BluetoothProvider } from "./bluetooth/Context";
 import { DataProvider } from "./DataContext";
 import { SafeAreaProvider } from "react-native-safe-area-context";
-import { PaperProvider, Portal } from "react-native-paper";
+import { PaperProvider } from "react-native-paper";
 import theme from "./theme";
 
 import { Router } from "./Routing";
