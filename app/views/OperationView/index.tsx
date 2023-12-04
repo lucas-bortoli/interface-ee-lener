@@ -8,6 +8,8 @@ import { useState } from "react";
 import { useCharacteristicInt } from "../../bluetooth/useCharacteristic";
 import { useBluetoothConnection } from "../../bluetooth/Context";
 import BluetoothUuids from "../../bluetooth/uuids";
+import { ControlCodes, useControlCharacteristic } from "../../bluetooth/useControlCharacteristic";
+import { hapticFeedbackControl } from "../../haptics/HapticFeedback";
 
 export default function OperationView() {
   const data = useDataContext();
@@ -23,6 +25,15 @@ export default function OperationView() {
   const [pwm] = useCharacteristicInt(bt.device!, BluetoothUuids.characteristicPwm);
   const [mese] = useCharacteristicInt(bt.device!, BluetoothUuids.characteristicMese);
   const [meseMax] = useCharacteristicInt(bt.device!, BluetoothUuids.characteristicMeseMax);
+
+  const sendControl = useControlCharacteristic(bt.device!);
+
+  function updateMaxMese(operation: "+" | "-") {
+    hapticFeedbackControl();
+    sendControl(
+      operation === "+" ? ControlCodes.IncreaseMeseMaxStep : ControlCodes.DecreaseMeseMaxStep
+    );
+  }
 
   return (
     <ScrollView>
@@ -70,13 +81,13 @@ export default function OperationView() {
               animated={false}
               size="small"
               icon={() => <MaterialCommunityIcons name="minus" size={24} />}
-              onPress={() => setSetpoint(setpoint - Math.floor(currentMese * 0.05))}
+              onPress={() => updateMaxMese("-")}
             ></FAB>
             <FAB
               animated={false}
               size="small"
               icon={() => <MaterialCommunityIcons name="plus" size={24} />}
-              onPress={() => setSetpoint(setpoint + Math.floor(currentMese * 0.05))}
+              onPress={() => updateMaxMese("+")}
             ></FAB>
           </View>
         </View>
