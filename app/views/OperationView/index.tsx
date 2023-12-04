@@ -2,29 +2,27 @@ import { ScrollView, StyleSheet, View } from "react-native";
 import { FAB } from "react-native-paper";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { StatusDisplay } from "../../components/StatusDisplay";
-import { useDataContext } from "../../DataContext";
 import { WeightIndicationBar } from "./WeightIndicatorBar";
-import { useState } from "react";
+import { useRef } from "react";
 import { useCharacteristicInt } from "../../bluetooth/useCharacteristic";
 import { useBluetoothConnection } from "../../bluetooth/Context";
 import BluetoothUuids from "../../bluetooth/uuids";
 import { ControlCodes, useControlCharacteristic } from "../../bluetooth/useControlCharacteristic";
-import { hapticFeedbackControl } from "../../haptics/HapticFeedback";
+import { hapticFeedbackControl, hapticFeedbackControlLight } from "../../haptics/HapticFeedback";
 
 export default function OperationView() {
-  const data = useDataContext();
-
-  const [parallelWeight] = data.parallelCollectedWeight;
-  const [currentMese] = data.meseValue;
-
-  const [setpoint, setSetpoint] = useState(currentMese / 2);
   const bt = useBluetoothConnection();
 
+  const [parallelWeight] = useCharacteristicInt(
+    bt.device!,
+    BluetoothUuids.characteristicAverageCollectedWeight
+  );
   const [weightL] = useCharacteristicInt(bt.device!, BluetoothUuids.characteristicWeightL);
   const [weightR] = useCharacteristicInt(bt.device!, BluetoothUuids.characteristicWeightR);
   const [pwm] = useCharacteristicInt(bt.device!, BluetoothUuids.characteristicPwm);
   const [mese] = useCharacteristicInt(bt.device!, BluetoothUuids.characteristicMese);
   const [meseMax] = useCharacteristicInt(bt.device!, BluetoothUuids.characteristicMeseMax);
+  const [setpoint] = useCharacteristicInt(bt.device!, BluetoothUuids.characteristicSetpoint);
 
   const sendControl = useControlCharacteristic(bt.device!);
 
@@ -35,6 +33,15 @@ export default function OperationView() {
     );
   }
 
+  const _setpointRef = useRef(setpoint);
+  _setpointRef.current = setpoint;
+  function onSetpointChange(newSetpoint: number) {
+    newSetpoint = Math.round(newSetpoint);
+    if (_setpointRef.current === newSetpoint) return;
+    sendControl(ControlCodes.SetSetpoint, newSetpoint);
+    hapticFeedbackControlLight();
+  }
+
   return (
     <ScrollView>
       <View style={StyleSheet.compose(styles.group, styles.weightBarsWrapper)}>
@@ -43,7 +50,7 @@ export default function OperationView() {
           maximumValue={parallelWeight}
           value={weightL}
           setpointValue={setpoint}
-          onSetpointChange={setSetpoint}
+          onSetpointChange={onSetpointChange}
           fillColor="#2E7D32"
           setpointColor="#C8E6C9"
           style={styles.weightBar}
@@ -53,7 +60,7 @@ export default function OperationView() {
           maximumValue={parallelWeight}
           value={weightR}
           setpointValue={setpoint}
-          onSetpointChange={setSetpoint}
+          onSetpointChange={onSetpointChange}
           fillColor="#9E9D24"
           setpointColor="#F0F4C3"
           style={styles.weightBar}

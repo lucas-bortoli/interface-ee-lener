@@ -1,8 +1,7 @@
 import { StyleSheet, View } from "react-native";
-import { Button, Text } from "react-native-paper";
+import { Button } from "react-native-paper";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { hapticFeedbackControl } from "./haptics/HapticFeedback";
-import { useDataContext } from "./DataContext";
 
 interface MenuButtonProps {
   icon: string;
@@ -31,8 +30,6 @@ function MenuButton(props: MenuButtonProps) {
 }
 
 export default function Menu() {
-  const data = useDataContext();
-
   return (
     <>
       <View style={styles.buttonList}>
@@ -57,8 +54,6 @@ export default function Menu() {
           target="/views/OperationView/"
         ></MenuButton>
       </View>
-      <Text>Paralela: {data.parallelCollectedWeight[0]} kg</Text>
-      <Text>MESE: {data.meseValue[0]} µS</Text>
     </>
   );
 }

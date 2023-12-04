@@ -1,6 +1,5 @@
 import { registerRootComponent } from "expo";
 import { BluetoothProvider } from "./bluetooth/Context";
-import { DataProvider } from "./DataContext";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { PaperProvider } from "react-native-paper";
 import theme from "./theme";
@@ -15,15 +14,13 @@ export default function App() {
   return (
     <SafeAreaProvider>
       <BluetoothProvider>
-        <DataProvider>
-          <GestureHandlerRootView style={{ flex: 1 }}>
-            <NavigationContainer ref={navigator}>
-              <PaperProvider theme={theme}>
-                <Router />
-              </PaperProvider>
-            </NavigationContainer>
-          </GestureHandlerRootView>
-        </DataProvider>
+        <GestureHandlerRootView style={{ flex: 1 }}>
+          <NavigationContainer ref={navigator}>
+            <PaperProvider theme={theme}>
+              <Router />
+            </PaperProvider>
+          </NavigationContainer>
+        </GestureHandlerRootView>
       </BluetoothProvider>
     </SafeAreaProvider>
   );

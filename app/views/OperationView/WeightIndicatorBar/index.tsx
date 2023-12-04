@@ -48,7 +48,7 @@ export function WeightIndicationBar(props: Props) {
                 color: props.setpointColor
               })}
             >
-              {(Math.round(props.setpointValue * 100) / 100).toFixed(2)} kg
+              {(Math.round(props.setpointValue * 100) / 100).toFixed(0)} kg
             </Text>
           </View>
         );

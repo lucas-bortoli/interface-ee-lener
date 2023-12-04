@@ -5,6 +5,10 @@ export async function hapticFeedbackControl() {
   await impactAsync(ImpactFeedbackStyle.Medium);
 }
 
+export async function hapticFeedbackControlLight() {
+  await impactAsync(ImpactFeedbackStyle.Light);
+}
+
 export async function hapticFeedbackProcessStart() {
   await impactAsync(ImpactFeedbackStyle.Heavy);
   await timeout(300);

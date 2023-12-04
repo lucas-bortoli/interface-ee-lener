@@ -8,9 +8,11 @@ export const ControlCodes = {
   DecreasePwmStep: 0x81,
   IncreasePwmStep: 0x82,
   ResetPwmGradual: 0x83,
+  CollectAverageWeight: 0x8a,
   SaveMese: 0x90,
   DecreaseMeseMaxStep: 0xa1,
-  IncreaseMeseMaxStep: 0xa2
+  IncreaseMeseMaxStep: 0xa2,
+  SetSetpoint: 0xb1
 };
 
 export function useControlCharacteristic(device: Device) {

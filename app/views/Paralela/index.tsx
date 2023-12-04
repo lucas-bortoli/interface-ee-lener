@@ -4,20 +4,24 @@ import { useCountdown } from "../../hooks/useCountdown";
 import { useRef } from "react";
 import { StatusDisplay } from "../../components/StatusDisplay";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { hapticFeedbackProcessEnd } from "../../haptics/HapticFeedback";
+import { hapticFeedbackControl } from "../../haptics/HapticFeedback";
 import { useBluetoothConnection } from "../../bluetooth/Context";
 import { useCharacteristicInt } from "../../bluetooth/useCharacteristic";
 import BluetoothUuids from "../../bluetooth/uuids";
-import { useDataContext } from "../../DataContext";
 import { NextViewButton } from "../../components/NextViewButton";
+import { ControlCodes, useControlCharacteristic } from "../../bluetooth/useControlCharacteristic";
 
 export default function ParalelaView() {
   const ble = useBluetoothConnection();
 
   const [weightL] = useCharacteristicInt(ble.device, BluetoothUuids.characteristicWeightL);
   const [weightR] = useCharacteristicInt(ble.device, BluetoothUuids.characteristicWeightR);
+  const [collectedWeight] = useCharacteristicInt(
+    ble.device,
+    BluetoothUuids.characteristicAverageCollectedWeight
+  );
 
-  const [collectedWeight, setCollectedWeight] = useDataContext().parallelCollectedWeight;
+  const sendControl = useControlCharacteristic(ble.device!);
 
   const weightLRef = useRef<number>();
   const weightRRef = useRef<number>();
@@ -26,10 +30,9 @@ export default function ParalelaView() {
   weightRRef.current = weightR;
 
   const countdown = useCountdown(async () => {
-    // Dado coletado!
-    hapticFeedbackProcessEnd();
-
-    setCollectedWeight(((weightLRef.current ?? 0) + (weightRRef.current ?? 0)) / 2);
+    // Requisitar dado...
+    await sendControl(ControlCodes.CollectAverageWeight);
+    hapticFeedbackControl();
   }, 1000);
 
   const startCountdown = () => {

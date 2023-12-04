@@ -13,17 +13,16 @@ import { useEffect } from "react";
 import { useBluetoothConnection } from "../../bluetooth/Context";
 import { useCharacteristicInt } from "../../bluetooth/useCharacteristic";
 import BluetoothUuids from "../../bluetooth/uuids";
-import { useDataContext } from "../../DataContext";
 import { ControlCodes, useControlCharacteristic } from "../../bluetooth/useControlCharacteristic";
 import { NextViewButton } from "../../components/NextViewButton";
 
 export default function MalhaAbertaView() {
-  const isOperating = useBoolean();
+  const ble = useBluetoothConnection();
 
-  const [currentMese, setCurrentMese] = useDataContext().meseValue;
+  const isOperating = useBoolean();
   const isWindingDown = useBoolean();
 
-  const ble = useBluetoothConnection();
+  const [currentMese] = useCharacteristicInt(ble.device, BluetoothUuids.characteristicMese);
   const [btPwm] = useCharacteristicInt(ble.device, BluetoothUuids.characteristicPwm);
   const sendControl = useControlCharacteristic(ble.device!);
 
@@ -45,7 +44,6 @@ export default function MalhaAbertaView() {
     }
 
     hapticFeedbackProcessEnd();
-    setCurrentMese(btPwm);
     isOperating.setFalse();
     isWindingDown.setTrue();
 
