@@ -1,7 +1,7 @@
 {
   "expo": {
     "scheme": "ee-lener",
-    "name": "app_ee_lener",
+    "name": "Interface EE LENeR",
     "slug": "interface-ee-lener",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -17,14 +17,7 @@
       "supportsTablet": true
     },
     "android": {
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
-      },
       "package": "com.lucasbortolisantos.interfaceeelener"
-    },
-    "web": {
-      "favicon": "./assets/favicon.png"
     },
     "plugins": [
       "expo-router",

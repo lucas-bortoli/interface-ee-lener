@@ -7,6 +7,7 @@ import theme from "./theme";
 import { Router } from "./Routing";
 import { NavigationContainer, useNavigationContainerRef } from "@react-navigation/native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { StatusBar } from "expo-status-bar";
 
 export default function App() {
   const navigator = useNavigationContainerRef();
@@ -17,6 +18,7 @@ export default function App() {
         <GestureHandlerRootView style={{ flex: 1 }}>
           <NavigationContainer ref={navigator}>
             <PaperProvider theme={theme}>
+              <StatusBar backgroundColor={theme.colors.elevation.level2} style="dark" />
               <Router />
             </PaperProvider>
           </NavigationContainer>

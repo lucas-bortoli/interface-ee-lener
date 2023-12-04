@@ -68,7 +68,7 @@ export default function ParalelaView() {
         <StatusDisplay
           style={StyleSheet.compose(styles.collectedData, styles.bar)}
           textLeft="coleta"
-          textMain={shownWeight.toFixed(2)}
+          textMain={shownWeight.toFixed(0)}
           textRight="kg"
         />
       </View>
@@ -86,7 +86,7 @@ export default function ParalelaView() {
         icon="seat-legroom-extra"
         label={'Ir para "Malha aberta"'}
         target="Malha Aberta"
-        visible={true}
+        visible={collectedWeight > 0}
       />
     </View>
   );

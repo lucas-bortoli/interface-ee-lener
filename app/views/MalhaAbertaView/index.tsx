@@ -78,12 +78,14 @@ export default function MalhaAbertaView() {
       </View>
       <View style={styles.valueButtonsContainer}>
         <FAB
+          animated={false}
           mode="elevated"
           icon={() => <MaterialCommunityIcons name="minus" size={24} />}
           onPress={() => changeMese("-")}
           disabled={isOperating.value === false}
         ></FAB>
         <FAB
+          animated={false}
           mode="elevated"
           icon={() => <MaterialCommunityIcons name="plus" size={24} />}
           onPress={() => changeMese("+")}
@@ -115,7 +117,7 @@ export default function MalhaAbertaView() {
         icon="seat-legroom-extra"
         label={'Ir para "Operação"'}
         target="Operação"
-        visible
+        visible={isWindingDown.value === false && isOperating.value === false && currentMese > 0}
       />
     </View>
   );
