@@ -15,6 +15,7 @@ import { useCharacteristicInt } from "../../bluetooth/useCharacteristic";
 import BluetoothUuids from "../../bluetooth/uuids";
 import { ControlCodes, useControlCharacteristic } from "../../bluetooth/useControlCharacteristic";
 import { NextViewButton } from "../../components/NextViewButton";
+import { useUpdateEffect } from "../../hooks/useUpdateEffect";
 
 export default function MalhaAbertaView() {
   const ble = useBluetoothConnection();
@@ -56,8 +57,7 @@ export default function MalhaAbertaView() {
       return;
     }
 
-    await sendControl(sign === "+" ? ControlCodes.IncreasePwmStep : ControlCodes.DecreasePwmStep);
-    hapticFeedbackControl();
+    sendControl(sign === "+" ? ControlCodes.IncreasePwmStep : ControlCodes.DecreasePwmStep);
   };
 
   useEffect(() => {
@@ -65,6 +65,10 @@ export default function MalhaAbertaView() {
       isWindingDown.setFalse();
     }
   }, [isWindingDown, btPwm]);
+
+  useUpdateEffect(() => {
+    hapticFeedbackControl();
+  }, [btPwm]);
 
   return (
     <View style={{ flex: 1 }}>

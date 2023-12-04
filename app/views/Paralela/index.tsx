@@ -10,6 +10,7 @@ import { useCharacteristicInt } from "../../bluetooth/useCharacteristic";
 import BluetoothUuids from "../../bluetooth/uuids";
 import { NextViewButton } from "../../components/NextViewButton";
 import { ControlCodes, useControlCharacteristic } from "../../bluetooth/useControlCharacteristic";
+import { useUpdateEffect } from "../../hooks/useUpdateEffect";
 
 export default function ParalelaView() {
   const ble = useBluetoothConnection();
@@ -40,6 +41,12 @@ export default function ParalelaView() {
   };
 
   const shownWeight = countdown.isCounting ? (weightL + weightR) / 2 : collectedWeight;
+
+  // Vibrar quando o dado de peso médio é coletado do Gateway, sem vibrar na primeira render
+  useUpdateEffect(() => {
+    console.log("Peso médio coletado!");
+    hapticFeedbackControl();
+  }, [collectedWeight]);
 
   return (
     <View style={{ flex: 1 }}>
